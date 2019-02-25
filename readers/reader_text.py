@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import chardet
 import os
 import re
 
@@ -20,6 +21,14 @@ class TextReader:
     def get_template(self):
         return None
 
+    def _iter_lines(self):
+        if self._filename is None:
+            return
+        with open(self._filename, 'rb') as f:
+            buf = f.read()
+            charinfo = chardet.detect(buf)
+        yield from buf.decode(charinfo['encoding']).splitlines()
+
     def get_cover(self):
         cover = os.path.join(self._filename[:-4] + COVER_SUFFIX)
         return cover if os.path.exists(cover) else None
@@ -37,13 +46,11 @@ class TextReader:
         return []
 
     def contents(self):
-        if self._filename is None:
-            return
         level = -1
         title = None
         paras = []
-        with open(self._filename) as f:
-            for line in f:
+        try:
+            for line in self._iter_lines():
                 if line.strip():
                     newtitle = self._is_title(line)
                     if newtitle is None:
@@ -55,7 +62,7 @@ class TextReader:
             if title is None:
                 return
 
-            for line in f:
+            for line in self._iter_lines():
                 newtitle = self._is_title(line)
                 if newtitle:
                     if title:
@@ -67,6 +74,8 @@ class TextReader:
                 else:
                     paras.append(line)
             yield (level, title, ''.join(paras))
+        finally:
+            pass
 
     def _is_title(self, line):
         for pat in self._pat_titles:
