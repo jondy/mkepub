@@ -1,65 +1,22 @@
-[![Build Status](https://travis-ci.org/anqxyr/mkepub.svg?branch=master)](https://travis-ci.org/anqxyr/mkepub)
-[![Coverage Status](https://coveralls.io/repos/github/anqxyr/mkepub/badge.svg?branch=master)](https://coveralls.io/github/anqxyr/mkepub?branch=master)
-[![license](https://img.shields.io/github/license/anqxyr/mkepub.svg?maxAge=2592000)](https://github.com/anqxyr/mkepub/LICENSE)
-
 # mkepub
 
-**mkepub** is a minimalistic library for creating .epub files.
+**mkepub** 主要用于转换文本为 .epub 文件
 
-**Pros:**
+## 文本格式
 
-* Easy to use, minimalistic API.
-* Automatically generated TOC.
-* Support for nested TOC of any depth.
-* Support for embedded images.
-* Support for embedded fonts.
-* In-progress books are stored on disk rather than in memory, enabling creation of large (5000+ pages, 20+ MiBs) epub files.
-* Adherence to the EPUB3 specs.
-* Support for most of the EPUB metadata, including language, subject, description, and rights.
+封面必须和文本文件在同一个目录下面，且名称增加后缀 `-封面.jpg`
 
-**Cons:**
+文本的作者等信息应该在前 100 行之内，支持的关键字包括:
 
-* No support for custom page filenames or directory structure.
-* No support for reading or editing epub files.
-* No content validation - using broken or unsupported html code as page content will lead to mkepub successfully creating a .epub file that does not meet EPUB3 specifications.
-* Probably other issues.
+    书名：
+    作者：
+    出版者：
+    出版时间：
+    ISBN：
 
+文本的基本格式为使用 `#` 来标识一个章节的开始。
 
-### Basic Usage
+第一个包含 `#` 的行如果不是在第一行，其前的所有行会被忽略，不会写入到
+输出文件中。
 
-```python
-import mkepub
-
-book = mkepub.Book(title='An Example')
-book.add_page(title='First Page', content='Lorem Ipsum etcetera.')
-book.save('example.epub')
-```
-
-### Advanced Usage
-
-```python
-import mkepub
-
-book = mkepub.Book(title='Advanced Example', author='The Author')
-# multiple authors can be specified as a list:
-# mkepub.Book(title='Advanced Example', authors=['The First Author', 'The Second Author'])
-with open('cover.jpg', 'rb') as file:
-    book.set_cover(file.read())
-with open('style.css') as file:
-    book.set_stylesheet(file.read())
-
-first = book.add_page('Chapter 1', 'And so the book begins.')
-
-child = book.add_page('Chapter 1.1', 'Nested TOC is supported.', parent=first)
-book.add_page('Chapter 1.1.1', 'Infinite nesting levels', parent=child)
-book.add_page('Chapter 1.2', 'In any order you wish.', parent=first)
-
-book.add_page('Chapter 2', 'Use <b>html</b> to make your text <span class="pink">prettier</span>')
-
-book.add_page('Chapter 3: Images', '<img src="images/chapter3.png" alt="You can use images as well">')
-# as long as you add them to the book:
-with open('chapter3.png', 'rb') as file:
-    book.add_image('chapter3.png', file.read())
-
-book.save('advanced.epub')
-```
+注释行以 `!#` 开始，这样的行也会被忽略。
