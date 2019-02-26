@@ -8,6 +8,7 @@ import re
 from ebooklib import epub
 
 PAT_TITLE = r'^(#+)\s*(.*)\s*$'
+PAT_EMPTY = r'<p>\s*</p>'
 PAT_COMMENT = '!#'
 
 COVER_SUFFIX = '-封面.jpg'
@@ -29,6 +30,7 @@ class TextReader:
         self._toc = None
         self._encoding = None
         self._pat_titles = [re.compile(PAT_TITLE)]
+        self._pat_empty = re.compile(PAT_EMPTY)
 
     def is_support(self, ext):
         return ext in ('.txt',)
@@ -83,6 +85,7 @@ class TextReader:
         self._toc = []
 
         paras = None
+        titles = []
 
         def write_page():
             self._pindex += 1
@@ -93,6 +96,12 @@ class TextReader:
             self._toc.append((level, page))
             return page
 
+        def not_empty(paras):
+            if paras:
+                for p in paras:
+                    if not self._pat_empty.match(p):
+                        return True
+
         for line in self._iter_lines():
             self._row += 1
             if line.startswith(PAT_COMMENT):
@@ -100,7 +109,7 @@ class TextReader:
 
             header = self._is_title(line)
             if header:
-                if paras:
+                if not_empty(paras):
                     yield write_page()
                 paras = None
                 self._toc.append(header)
@@ -108,13 +117,18 @@ class TextReader:
             elif self._toc:
                 if paras is None:
                     paras = []
+                    titles = []
                     level, title = self._toc[-1]
-                    paras.append('<h{0}>{1}</h{0}>'.format(level, title))
-                    if line.strip() == title:
-                        continue
-                paras.append('<p>{0}</p>'.format(line))
+                    for n, t in reversed(self._toc):
+                        if n > level or (not isinstance(t, str)):
+                            break
+                        paras.insert(0, '<h{0}>{1}</h{0}>'.format(n, t))
+                        titles.append(t)
+                        level = n
+                if line.strip() not in titles:
+                    paras.append('<p>{0}</p>'.format(line))
 
-        if paras:
+        if not_empty(paras):
             yield write_page()
 
     def _is_title(self, line):
