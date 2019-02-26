@@ -15,12 +15,15 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
 
 from ui_main import Ui_MainWindow
 
+COL_FILENAME = 0
+COL_STATUS = 1
+
 # from transform import process_file, save_result
 
 from openpyxl import load_workbook
 
 
-def save_result(result, filename=None):
+def save_result(filelist, result):
     filename = 'upload-yyyy-mm-dd-hh-mi-ss.xlsx'
     template = os.path.join(os.path.dirname(__file__), 'upload.xltx')
     wb = load_workbook(template)
@@ -72,18 +75,21 @@ def process_file(filename):
     pass
 
 
-class CountWorker(QThread):
+class EpubWorker(QThread):
 
     fileStart = pyqtSignal(int)
-    fileEnd = pyqtSignal(int, tuple)
+    fileEnd = pyqtSignal(int, dict)
 
     def __init__(self, filelist, parent=None):
-        super(CountWorker, self).__init__(parent)
+        super(EpubWorker, self).__init__(parent)
         self.filelist = filelist
+        self.request_stop = 0
 
     def run(self):
         row = 0
         for filename in self.filelist:
+            if self.request_stop:
+                break
             self.fileStart.emit(row)
             result = process_file(filename)
             self.fileEnd.emit(row, result)
@@ -99,73 +105,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._settings = QSettings('Dashingsoft', 'Word-Counter')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
 
-        self.actionAbout.triggered.connect(self.about)
-        self.actionCountDirectory.triggered.connect(self.countDirectory)
-        self.actionCountFile.triggered.connect(self.countFile)
+        self.actionSelectDirectory.triggered.connect(self.selectDirectory)
+        self.actionSelectFiles.triggered.connect(self.selectFiles)
+        self.actionStart.triggered.connect(self.startTransform)
+        self.actionStop.triggered.connect(self.stopTransform)
+        self.actionUpload.triggered.connect(self.uploadFiles)
         self.actionAbout.triggered.connect(self.about)
 
         self._filelist = []
+        self._result = []
+        self._worker = None
 
     def _setLastPath(self, path):
         self._lastPath = path
         self._settings.setValue('lastPath', path)
 
-    def countDirectory(self):
-        directory = QFileDialog.getExistingDirectory(self, '选择目录',
-                                                     self._lastPath)
-        if directory:
-            self._setLastPath(directory)
-            filelist = glob(os.path.join(directory, '*.xlsx'))
-            if filelist:
-                self._countFiles(filelist)
-
-    def countFile(self):
-        options = QFileDialog.Options()
-        files, _ = QFileDialog.getOpenFileNames(
-            self, '选择统计文件',
-            self._lastPath, 'Excel 2007(*.xlsx)',
-            options=options)
-
-        if files:
-            self._setLastPath(os.path.dirname(files[0]))
-            self._countFiles(files)
-
-    def about(self):
-        QMessageBox.about(self, '关于', '中文字符统计工具')
-
-    @pyqtSlot(int)
-    def handleFileStart(self, row):
-        w = self.tableWidget
-        w.setCurrentCell(row, 0)
-        w.setItem(row, 4, QTableWidgetItem('正在统计...'))
-
-    @pyqtSlot(int, tuple)
-    def handleFileEnd(self, row, result):
-        w = self.tableWidget
-        if result is None:
-            w.item(row, 4).setText('统计失败')
-            w.item(row, 4).setBackground(Qt.red)
-        else:
-            w.setItem(row, 1, QTableWidgetItem(str(result[1])))
-            w.setItem(row, 2, QTableWidgetItem(str(result[3])))
-            w.setItem(row, 3, QTableWidgetItem(str(result[2])))
-            w.item(row, 4).setText('统计完成')
-            w.item(row, 4).setBackground(Qt.lightGray)
-        filename = self._filelist[row]
-        self._filelist[row] = os.path.basename(filename), result
-
-    @pyqtSlot()
-    def handleWorkerFinished(self):
-        self.tableWidget.setCurrentItem(None)
-
-        output = save_result(self._filelist)
-        reply = QMessageBox.question(
-            self, '统计结束', '统计结果已经保存在文件: %s, 是否查看?' % output)
-        if reply == QMessageBox.Yes:
-            QDesktopServices.openUrl(
-                QUrl.fromLocalFile(QFileInfo(output).absoluteFilePath()))
-
-    def _countFiles(self, filelist):
+    def _initFileList(self, filelist):
         w = self.tableWidget
         for i in range(w.rowCount()):
             w.removeRow(0)
@@ -177,12 +132,79 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             row += 1
         w.horizontalHeader().setSectionResizeMode(3)
 
+    def selectDirectory(self):
+        directory = QFileDialog.getExistingDirectory(self, '选择目录',
+                                                     self._lastPath)
+        if directory:
+            self._setLastPath(directory)
+            filelist = glob(os.path.join(directory, '*.txt'))
+            if filelist:
+                self._initFileList(filelist)
+            else:
+                QMessageBox.information(self, '选择目录', '在选择的目录下面没有任何 .txt 文件')
+
+    def selectFiles(self):
+        options = QFileDialog.Options()
+        files, _ = QFileDialog.getOpenFileNames(
+            self, '选择文件',
+            self._lastPath, '文本文件 (*.txt)',
+            options=options)
+
+        if files:
+            self._setLastPath(os.path.dirname(files[0]))
+            self._initFileList(files)
+
+    def about(self):
+        QMessageBox.about(self, '关于', '红云电子书制作工具 v0.1a1')
+
+    def startTransform(self):
+        if self._filelist:
+            self._transformFiles(self._filelist)
+
+    def stopTransform(self):
+        if self._worker:
+            self._worker.request_stop = 1
+
+    def uploadFiles(self):
+        pass
+
+    @pyqtSlot(int)
+    def handleFileStart(self, row):
+        w = self.tableWidget
+        w.setCurrentCell(row, 0)
+        w.setItem(row, 4, QTableWidgetItem('正在统计...'))
+
+    @pyqtSlot(int, dict)
+    def handleFileEnd(self, row, result):
+        w = self.tableWidget
+        if result is None:
+            w.item(row, COL_STATUS).setText('转换失败')
+            w.item(row, COL_STATUS).setBackground(Qt.red)
+        else:
+            w.item(row, COL_STATUS).setText('转换完成')
+            w.item(row, COL_STATUS).setBackground(Qt.lightGray)
+        self._result.append(result)
+
+    @pyqtSlot()
+    def handleWorkerFinished(self):
+        if not self._worker.request_stop:
+            self.tableWidget.setCurrentItem(None)
+            output = save_result(self._filelist, self._result)
+            msg = '文件转换完成，上传列表已经保存在文件: %s, 是否查看?'
+            reply = QMessageBox.question(self, '转换结束', msg % output)
+            if reply == QMessageBox.Yes:
+                QDesktopServices.openUrl(
+                    QUrl.fromLocalFile(QFileInfo(output).absoluteFilePath()))
+        self._worker = None
+
+    def _transformFiles(self, filelist):
         self._filelist = filelist
-        worker = CountWorker(filelist, parent=self)
+        worker = EpubWorker(filelist, parent=self)
         worker.fileStart.connect(self.handleFileStart)
         worker.fileEnd.connect(self.handleFileEnd)
         worker.finished.connect(self.handleWorkerFinished)
         worker.start()
+        self._worker = worker
 
 
 def main():

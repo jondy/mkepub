@@ -57,6 +57,7 @@ class Ui_MainWindow(object):
         self.actionStart = QtWidgets.QAction(MainWindow)
         self.actionStart.setObjectName("actionStart")
         self.actionStop = QtWidgets.QAction(MainWindow)
+        self.actionStop.setEnabled(False)
         self.actionStop.setObjectName("actionStop")
         self.actionUpload = QtWidgets.QAction(MainWindow)
         self.actionUpload.setObjectName("actionUpload")
