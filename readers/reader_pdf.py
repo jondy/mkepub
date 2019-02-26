@@ -67,8 +67,8 @@ class PdfReader:
                 return len(m.group(1)) - 2, m.group(2)
 
 
-def register_reader():
-    return PdfReader()
+# def register_reader():
+#     return PdfReader()
 
 
 if __name__ == '__main__':
