@@ -13,66 +13,10 @@ from PyQt5.QtGui import QFont, QDesktopServices
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
     QFileDialog, QTableWidgetItem
 
+from transform import process_file, save_result
 from ui_main import Ui_MainWindow
 
-COL_FILENAME = 0
 COL_STATUS = 1
-
-# from transform import process_file, save_result
-
-from openpyxl import load_workbook
-
-
-def save_result(filelist, result):
-    filename = 'upload-yyyy-mm-dd-hh-mi-ss.xlsx'
-    template = os.path.join(os.path.dirname(__file__), 'upload.xltx')
-    wb = load_workbook(template)
-    wb.template = False
-
-    start_row = 4
-    filename_col = 'A'
-    page_col = 'C'
-    total_col = 'D'
-    non_blank_col = 'E'
-    han_col = 'F'
-    price_col = 'G'
-    price = 450.0
-    money_col = 'H'
-    money_formula = '=F{row}/1000*G{row}'
-
-    ws = wb.active
-    row = start_row
-    for name, counter in result:
-        if counter is None:
-            continue
-        page, total, han, blank = counter
-        rs = str(row)
-        ws[filename_col + rs] = os.path.basename(name)
-        ws[page_col + rs] = page
-        ws[total_col + rs] = total
-        ws[non_blank_col + rs] = total - blank
-        ws[han_col + rs] = han
-        ws[price_col + rs] = price
-        ws[money_col + rs] = money_formula.format(row=row)
-        row += 1
-
-    sum_formula = '=sum({col}%d:{col}%d)' % (start_row, row-1)
-    rs = str(row)
-    ws[filename_col + rs] = '总计'
-    ws[page_col + rs] = sum_formula.format(col=page_col)
-    ws[total_col + rs] = sum_formula.format(col=total_col)
-    ws[non_blank_col + rs] = sum_formula.format(col=non_blank_col)
-    ws[han_col + rs] = sum_formula.format(col=han_col)
-    ws[money_col + rs] = sum_formula.format(col=money_col)
-
-    wb.save(filename)
-    wb.close()
-
-    return filename
-
-
-def process_file(filename):
-    pass
 
 
 class EpubWorker(QThread):
@@ -131,6 +75,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             w.setItem(row, 0, QTableWidgetItem(os.path.basename(filename)))
             row += 1
         w.horizontalHeader().setSectionResizeMode(3)
+        self._filelist = filelist
 
     def selectDirectory(self):
         directory = QFileDialog.getExistingDirectory(self, '选择目录',
@@ -159,7 +104,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def startTransform(self):
         if self._filelist:
-            self._transformFiles(self._filelist)
+            self._transformFiles()
 
     def stopTransform(self):
         if self._worker:
@@ -172,7 +117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handleFileStart(self, row):
         w = self.tableWidget
         w.setCurrentCell(row, 0)
-        w.setItem(row, 4, QTableWidgetItem('正在统计...'))
+        w.setItem(row, COL_STATUS, QTableWidgetItem('正在转换...'))
 
     @pyqtSlot(int, dict)
     def handleFileEnd(self, row, result):
@@ -197,9 +142,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QUrl.fromLocalFile(QFileInfo(output).absoluteFilePath()))
         self._worker = None
 
-    def _transformFiles(self, filelist):
-        self._filelist = filelist
-        worker = EpubWorker(filelist, parent=self)
+    def _transformFiles(self):
+        worker = EpubWorker(self._filelist, parent=self)
         worker.fileStart.connect(self.handleFileStart)
         worker.fileEnd.connect(self.handleFileEnd)
         worker.finished.connect(self.handleWorkerFinished)

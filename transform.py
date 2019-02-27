@@ -9,12 +9,56 @@ import sys
 import uuid
 
 from ebooklib import epub
+from openpyxl import load_workbook
+
 from readers import find_reader
 
 version_info = '0.1a0'
 
+UPLOAD_PATH = '/www/wwwroot/www.yancloud.red/Uploads/bookTemp'
 
-def process_file(filename, options):
+
+def save_result(filelist, result, filename=None):
+    if filename is None:
+        filename = 'upload-epub.xlsx'
+    template = os.path.join(os.path.dirname(__file__), 'upload2007.xlsx')
+    wb = load_workbook(template)
+    wb.template = False
+
+    start_row = 3
+    filename_col = 'A'
+    author_col = 'D'
+    author_info_col = 'E'
+    isbn_col = 'F'
+    date_col = 'G'
+    publisher_col = 'H'
+    price_col = 'I'
+    intro_col = 'J'
+    path_col = 'K'
+
+    ws = wb.active
+    row = start_row
+    for name, meta in zip(filelist, result):
+        rs = str(row)
+        name = os.path.basename(name).rsplit('.', 1)[0]
+        ws[filename_col + rs] = meta.get('title', name)
+        ws[author_col + rs] = meta.get('author')
+        ws[author_info_col + rs] = meta.get('author_info')
+        ws[isbn_col + rs] = meta.get('ISBN')
+        ws[date_col + rs] = meta.get('date')
+        ws[publisher_col + rs] = meta.get('publisher')
+        ws[price_col + rs] = meta.get('price')
+        ws[intro_col + rs] = meta.get('intro')
+        ws[path_col + rs] = '/'.join([UPLOAD_PATH, name + '.epub'])
+        row += 1
+
+    wb.save(filename)
+    wb.close()
+
+    return filename
+
+
+def process_file(filename, output='output'):
     logging.info('Processing %s...', filename)
     reader = find_reader(filename)
     if reader is None:
@@ -25,6 +69,7 @@ def process_file(filename, options):
     book = epub.EpubBook()
 
     meta = reader.get_metadata()
+    print(meta)
 
     book.set_identifier(meta.get('ISBN', str(uuid.uuid4())))
 
@@ -69,7 +114,9 @@ def process_file(filename, options):
     book.spine = ['cover', 'nav']
     book.spine.extend(list(book.get_items_of_type(9))[1:-1])
 
-    epub.write_epub(os.path.join(options.output, name + '.epub'), book)
+    if not os.path.exists(output):
+        os.makedirs(output)
+    epub.write_epub(os.path.join(output, name + '.epub'), book)
 
     return meta
 
@@ -97,7 +144,7 @@ def main(args):
         logging.getLogger().setLevel(100)
 
     for filename in args.filenames:
-        process_file(filename, args)
+        process_file(filename, args.output)
 
 
 def main_entry():

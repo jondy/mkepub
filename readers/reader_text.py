@@ -65,12 +65,12 @@ class TextReader:
         meta = {}
         for line in self._iter_lines():
             for k, pats in PAT_METADATAS.items():
+                if meta.get(k):
+                    continue
                 for s in pats:
                     if line.startswith(s):
                         meta[k] = line[len(s):].strip()
                         break
-                if meta.get(k):
-                    break
             row += 1
             if row > MAX_META_ROW:
                 break
