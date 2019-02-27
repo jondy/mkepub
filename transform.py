@@ -36,16 +36,27 @@ def save_result(filelist, result, filename=None):
     intro_col = 'J'
     path_col = 'K'
 
+    def format_author(a):
+        return ','.join(a.split())
+
+    def format_date(a):
+        for t in ('年', '月', '日', '/'):
+            a = a.replace(t, '-')
+        s = [x.strip() for x in a.split('-') if x.strip()]
+        if len(s) == 2:
+            s.append('1')
+        return '-'.join(s)
+
     ws = wb.active
     row = start_row
     for name, meta in zip(filelist, result):
         rs = str(row)
         name = os.path.basename(name).rsplit('.', 1)[0]
         ws[filename_col + rs] = meta.get('title', name)
-        ws[author_col + rs] = meta.get('author')
+        ws[author_col + rs] = format_author(meta.get('author', ''))
         ws[author_info_col + rs] = meta.get('author_info')
         ws[isbn_col + rs] = meta.get('ISBN')
-        ws[date_col + rs] = meta.get('date')
+        ws[date_col + rs] = format_date(meta.get('date', ''))
         ws[publisher_col + rs] = meta.get('publisher')
         ws[price_col + rs] = meta.get('price')
         ws[intro_col + rs] = meta.get('intro')
@@ -69,7 +80,6 @@ def process_file(filename, output='output'):
     book = epub.EpubBook()
 
     meta = reader.get_metadata()
-    print(meta)
 
     book.set_identifier(meta.get('ISBN', str(uuid.uuid4())))
 
