@@ -60,6 +60,7 @@ class Ui_MainWindow(object):
         self.actionStop.setEnabled(False)
         self.actionStop.setObjectName("actionStop")
         self.actionUpload = QtWidgets.QAction(MainWindow)
+        self.actionUpload.setEnabled(False)
         self.actionUpload.setObjectName("actionUpload")
         self.menu_file.addAction(self.actionSelectDirectory)
         self.menu_file.addAction(self.actionSelectFiles)

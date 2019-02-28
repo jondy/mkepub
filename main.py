@@ -165,6 +165,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QDesktopServices.openUrl(
                     QUrl.fromLocalFile(QFileInfo(output).absoluteFilePath()))
         self._worker = None
+        self.actionStart.setEnabled(True)
+        self.actionStop.setEnabled(False)
 
     def _transformFiles(self):
         worker = EpubWorker(self._filelist, parent=self)
@@ -172,7 +174,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         worker.fileEnd.connect(self.handleFileEnd)
         worker.finished.connect(self.handleWorkerFinished)
         worker.start()
+        
         self._worker = worker
+        self.actionStart.setEnabled(False)
+        self.actionStop.setEnabled(True)
 
 
 def main():
