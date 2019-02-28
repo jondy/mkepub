@@ -13,10 +13,11 @@ from PyQt5.QtGui import QFont, QDesktopServices
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
     QFileDialog, QTableWidgetItem
 
-from transform import process_file, save_result
+from transform import process_file, upload_file, save_result
 from ui_main import Ui_MainWindow
 
 COL_STATUS = 1
+COL_UPLOAD = 2
 
 
 class EpubWorker(QThread):
@@ -36,6 +37,27 @@ class EpubWorker(QThread):
                 break
             self.fileStart.emit(row)
             result = process_file(filename)
+            self.fileEnd.emit(row, result)
+            row += 1
+
+
+class UploadWorker(QThread):
+
+    fileStart = pyqtSignal(int)
+    fileEnd = pyqtSignal(int, dict)
+
+    def __init__(self, filelist, parent=None):
+        super(UploadWorker, self).__init__(parent)
+        self.filelist = filelist
+        self.request_stop = 0
+
+    def run(self):
+        row = 0
+        for filename in self.filelist:
+            if self.request_stop:
+                break
+            self.fileStart.emit(row)
+            result = upload_file(filename)
             self.fileEnd.emit(row, result)
             row += 1
 
@@ -105,6 +127,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def startTransform(self):
         if self._filelist:
             self._transformFiles()
+        else:
+            QMessageBox.information(self, self.windowTitle(), '请首先选择目录或者文件')
 
     def stopTransform(self):
         if self._worker:

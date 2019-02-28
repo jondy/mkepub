@@ -5,6 +5,7 @@
 import argparse
 import logging
 import os
+import subprocess
 import sys
 import uuid
 
@@ -16,6 +17,15 @@ from readers import find_reader
 version_info = '0.1a0'
 
 UPLOAD_PATH = '/www/wwwroot/www.yancloud.red/Uploads/bookTemp'
+
+
+def upload_file(filename):
+    cmdlist = ['ftp']
+    cmdlist.append(filename)
+    p = subprocess(cmdlist,
+                   stdout=subprocess.PIPE,
+                   stderr=subprocess.STDOUT)
+    output, _ = p.communicate()
 
 
 def save_result(filelist, result, filename=None):
@@ -60,7 +70,7 @@ def save_result(filelist, result, filename=None):
         ws[publisher_col + rs] = meta.get('publisher')
         ws[price_col + rs] = meta.get('price')
         ws[intro_col + rs] = meta.get('intro')
-        ws[path_col + rs] = '/'.join([UPLOAD_PATH, name + '.epub'])
+        ws[path_col + rs] = name + '.epub'
         row += 1
 
     wb.save(filename)
