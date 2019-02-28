@@ -156,8 +156,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def handleWorkerFinished(self):
+        self.tableWidget.setCurrentItem(None)
         if not self._worker.request_stop:
-            self.tableWidget.setCurrentItem(None)
             output = save_result(self._filelist, self._result)
             msg = '文件转换完成，上传列表已经保存在文件: %s, 是否查看?'
             reply = QMessageBox.question(self, '转换结束', msg % output)
@@ -174,7 +174,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         worker.fileEnd.connect(self.handleFileEnd)
         worker.finished.connect(self.handleWorkerFinished)
         worker.start()
-        
+
         self._worker = worker
         self.actionStart.setEnabled(False)
         self.actionStop.setEnabled(True)
@@ -190,7 +190,14 @@ def main():
     window = MainWindow()
     window.show()
 
-    app.exec_()
+    try:
+        ret = app.exec_()
+    except Exception as e:
+        QMessageBox.critical(window, window.windowTitle(), str(e))
+        if sys.flags.debug:
+            raise
+        ret = -1
+    sys.exit(ret)
 
 
 if __name__ == '__main__':
