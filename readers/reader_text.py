@@ -35,9 +35,6 @@ class TextReader:
     def is_support(self, ext):
         return ext in ('.txt',)
 
-    def get_template(self):
-        return os.path.join(os.path.dirname(__file__), 'templates', 'txt')
-
     def _iter_lines(self):
         if self._filename is None:
             return

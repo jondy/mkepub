@@ -133,6 +133,12 @@ def process_file(filename, output='output'):
     reader.open(filename)
 
     book = epub.EpubBook()
+    style = 'body { qrfullpage:1; text-align:center; }'
+    cover_css = epub.EpubItem(uid="style_cover",
+                              file_name="cover.css",
+                              media_type="text/css",
+                              content=style)
+    book.add_item(cover_css)
 
     meta = reader.get_metadata()
 
@@ -149,6 +155,7 @@ def process_file(filename, output='output'):
     cover = reader.get_cover()
     if cover:
         book.set_cover('cover.jpg', open(cover, 'rb').read())
+        book.get_item_with_id('cover').add_item(cover_css)
         book.toc = [epub.Link('cover.xhtml', '封面', 'cover')]
     else:
         book.toc = []
@@ -229,5 +236,5 @@ def main_entry():
 
 
 if __name__ == '__main__':
-    # main_entry()
-    main(['tools/sample/examples/解读延安精神.txt'])
+    main_entry()
+    # main(['test/examples/解读延安精神.txt'])

@@ -159,8 +159,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tableWidget.setCurrentItem(None)
         if not self._worker.request_stop:
             output = save_result(self._filelist, self._result)
-            msg = '文件转换完成，上传列表已经保存在文件: %s, 是否查看?'
-            reply = QMessageBox.question(self, '转换结束', msg % output)
+            msg = ('文件转换完成，所有文件存放在目录：',
+                   os.path.abspath('output'), '',
+                   '上传列表已经保存在文件: %s, 是否查看?' % output)
+            reply = QMessageBox.question(self,
+                                         self.windowTitle(),
+                                         '<br>'.join(msg))
             if reply == QMessageBox.Yes:
                 QDesktopServices.openUrl(
                     QUrl.fromLocalFile(QFileInfo(output).absoluteFilePath()))
