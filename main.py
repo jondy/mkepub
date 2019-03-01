@@ -36,7 +36,10 @@ class EpubWorker(QThread):
             if self.request_stop:
                 break
             self.fileStart.emit(row)
-            result = process_file(filename)
+            try:
+                result = process_file(filename)
+            except Exception as e:
+                result = dict(err=str(e))
             self.fileEnd.emit(row, result)
             row += 1
 
@@ -146,9 +149,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(int, dict)
     def handleFileEnd(self, row, result):
         w = self.tableWidget
-        if result is None:
-            w.item(row, COL_STATUS).setText('转换失败')
-            w.item(row, COL_STATUS).setBackground(Qt.red)
+        if 'err' in result:
+            w.item(row, COL_STATUS).setText('转换失败: 文本格式不正确')
+            w.item(row, COL_STATUS).setBackground(Qt.darkGray)
         else:
             w.item(row, COL_STATUS).setText('转换完成')
             w.item(row, COL_STATUS).setBackground(Qt.lightGray)
