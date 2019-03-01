@@ -68,7 +68,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-        self._settings = QSettings('Dashingsoft', 'Word-Counter')
+        self._settings = QSettings('Dashingsoft', 'EPUB-Maker')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
 
         self.actionSelectDirectory.triggered.connect(self.selectDirectory)
