@@ -25,7 +25,7 @@
 
 下载安装包
 
-    http://dashingsoft.com/downloads/hongyun-epub.zip
+    http://www.yancloud.red/downloads/hongyun-epub.zip
     
 解压文件，然后双击执行里面的 `mkepub.exe`
 
