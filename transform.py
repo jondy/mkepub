@@ -79,6 +79,51 @@ def save_result(filelist, result, filename=None):
     return filename
 
 
+def build_toc(sections):
+    if not sections:
+        return None
+
+    def make_node(t):
+        return epub.Section(t) if isinstance(t, str) else t, []
+
+    level, page = sections[0]
+    node = make_node(page)
+    stack = [node]
+    toc = [node]
+
+    def reform_node():
+        if not stack[0][1]:
+            parent = stack[1][1] if len(stack) > 1 else toc
+            temp = parent.pop()
+            parent.append(temp[0])
+
+    ref = level
+    for level, page in sections[1:]:
+        node = make_node(page)
+        n = level - ref
+        if n >= len(stack):
+            if not isinstance(page, str):
+                for parent in stack:
+                    if not isinstance(parent[0], epub.Section):
+                        break
+                    if parent[0].href == '':
+                        parent[0].href = page.get_name()
+            stack[0][1].append(node)
+            stack.insert(0, node)
+        else:
+            reform_node()
+
+            if n == 0:
+                stack = [node]
+                toc.append(node)
+            else:
+                stack[:n] = []
+                stack[0][1].append(node)
+    reform_node()
+
+    return toc
+
+
 def process_file(filename, output='output'):
     logging.info('Processing %s...', filename)
     reader = find_reader(filename)
@@ -111,20 +156,22 @@ def process_file(filename, output='output'):
     for item in reader.contents():
         book.add_item(item)
 
-    sec = None
-    for item in reader.get_toc():
-        n, p = item
-        if isinstance(p, str):
-            if sec is not None:
-                book.toc.append(sec)
-            s = epub.Section(p)
-            sec = s, []
-        else:
-            if sec[0].href == '':
-                sec[0].href = p.get_name()
-            sec[1].append(p)
-    if sec is not None:
-        book.toc.append(sec)
+    # sec = None
+    # for item in reader.get_toc():
+    #     n, p = item
+    #     if isinstance(p, str):
+    #         if sec is not None:
+    #             book.toc.append(sec)
+    #         s = epub.Section(p)
+    #         sec = s, []
+    #     else:
+    #         if sec[0].href == '':
+    #             sec[0].href = p.get_name()
+    #         sec[1].append(p)
+    # if sec is not None:
+    #     book.toc.append(sec)
+
+    book.toc.extend(build_toc(reader.get_toc()))
 
     reader.close()
 

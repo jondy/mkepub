@@ -142,49 +142,6 @@ def register_reader():
     return TextReader()
 
 
-def build_toc(sections):
-    if not sections:
-        return None
-
-    def make_node(t):
-        return epub.Section(t) if isinstance(t, str) else t, []
-
-    level, page = sections[0][0]
-    node = make_node(page)
-    stack = [node]
-    toc = [node]
-
-    def reform_node():
-        if not stack[0][1]:
-            parent = stack[1][1] if len(stack) > 1 else toc
-            temp = parent.pop()
-            parent.append(temp[0])
-
-    ref = level
-    for level, page in sections:
-        node = make_node(page)
-        n = level - ref
-        if n >= len(stack):
-            if not isinstance(page, str):
-                for parent in stack:
-                    if not isinstance(parent[0], epub.Section):
-                        break
-                    if parent[0].href == '':
-                        parent[0].href = page.get_name()
-            stack[0][1].append(node)
-            stack.insert(0, node)
-        else:
-            reform_node()
-
-            if n == 0:
-                stack = [node]
-                toc.append(node)
-            else:
-                stack[:n] = []
-                stack[0][1].append(node)
-    reform_node()
-
-
 if __name__ == '__main__':
     r = TextReader()
     print(r._is_title('##Title2\n'))
