@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_main.ui'
 #
-# Created by: PyQt5 UI code generator 5.5
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -39,7 +39,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.tableWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 26))
         self.menubar.setObjectName("menubar")
         self.menu_file = QtWidgets.QMenu(self.menubar)
         self.menu_file.setObjectName("menu_file")
@@ -68,6 +68,8 @@ class Ui_MainWindow(object):
         self.actionUpload = QtWidgets.QAction(MainWindow)
         self.actionUpload.setEnabled(False)
         self.actionUpload.setObjectName("actionUpload")
+        self.actionHelp = QtWidgets.QAction(MainWindow)
+        self.actionHelp.setObjectName("actionHelp")
         self.menu_file.addAction(self.actionSelectDirectory)
         self.menu_file.addAction(self.actionSelectFiles)
         self.menu_file.addSeparator()
@@ -77,6 +79,7 @@ class Ui_MainWindow(object):
         self.menu_file.addAction(self.actionUpload)
         self.menu_file.addSeparator()
         self.menu_file.addAction(self.actionQuit)
+        self.menu.addAction(self.actionHelp)
         self.menu.addAction(self.actionAbout)
         self.menubar.addAction(self.menu_file.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -115,4 +118,6 @@ class Ui_MainWindow(object):
         self.actionStop.setText(_translate("MainWindow", "停止转换"))
         self.actionUpload.setText(_translate("MainWindow", "上传"))
         self.actionUpload.setToolTip(_translate("MainWindow", "上传电子书到红云服务器"))
+        self.actionHelp.setText(_translate("MainWindow", "帮助"))
+        self.actionHelp.setToolTip(_translate("MainWindow", "使用说明和帮助"))
 

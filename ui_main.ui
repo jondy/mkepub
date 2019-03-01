@@ -81,7 +81,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -102,6 +102,7 @@
     <property name="title">
      <string>帮助</string>
     </property>
+    <addaction name="actionHelp"/>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menu_file"/>
@@ -173,6 +174,14 @@
    </property>
    <property name="toolTip">
     <string>上传电子书到红云服务器</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>帮助</string>
+   </property>
+   <property name="toolTip">
+    <string>使用说明和帮助</string>
    </property>
   </action>
  </widget>

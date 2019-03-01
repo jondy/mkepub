@@ -80,6 +80,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionStop.triggered.connect(self.stopTransform)
         self.actionUpload.triggered.connect(self.uploadFiles)
         self.actionAbout.triggered.connect(self.about)
+        self.actionHelp.triggered.connect(self.showHelp)
 
         self._filelist = []
         self._result = []
@@ -123,6 +124,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if files:
             self._setLastPath(os.path.dirname(files[0]))
             self._initFileList(files)
+
+    def showHelp(self):
+        QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
 
     def about(self):
         QMessageBox.about(self, '关于', '红云电子书制作工具 v0.1a1')
