@@ -133,6 +133,8 @@ def process_file(filename, output='output'):
     reader.open(filename)
 
     book = epub.EpubBook()
+    book.FOLDER_NAME = 'OEBPS'
+
     style = 'body { qrfullpage:1; text-align:center; }'
     cover_css = epub.EpubItem(uid="style_cover",
                               file_name="cover.css",
@@ -154,7 +156,7 @@ def process_file(filename, output='output'):
 
     cover = reader.get_cover()
     if cover:
-        book.set_cover('cover.jpg', open(cover, 'rb').read())
+        book.set_cover('Images/coverpage.jpg', open(cover, 'rb').read())
         book.get_item_with_id('cover').add_item(cover_css)
         book.toc = [epub.Link('cover.xhtml', '封面', 'cover')]
     else:
@@ -191,7 +193,6 @@ def process_file(filename, output='output'):
     if not os.path.exists(output):
         os.makedirs(output)
     epub.write_epub(os.path.join(output, name + '.epub'), book)
-
     return meta
 
 

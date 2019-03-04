@@ -86,9 +86,9 @@ class TextReader:
 
         def write_page():
             self._pindex += 1
+            file_name = 'Text/chapter%02d.xhtml' % self._pindex
             level, title = self._toc.pop()
-            page = epub.EpubHtml(title=title,
-                                 file_name='page-%d.xhtml' % self._pindex)
+            page = epub.EpubHtml(title=title, file_name=file_name)
             page.set_content(''.join(paras))
             self._toc.append((level, page))
             return page
