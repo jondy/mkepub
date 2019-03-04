@@ -31,7 +31,7 @@ def upload_file(filename):
 def save_result(filelist, result, filename=None):
     if filename is None:
         filename = 'upload-epub.xlsx'
-    template = os.path.join(os.path.dirname(__file__), 'upload2007.xlsx')
+    template = os.path.join(os.path.dirname(__file__), 'upload.xltx')
     wb = load_workbook(template)
     wb.template = False
 
