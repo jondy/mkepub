@@ -3,6 +3,7 @@
 #
 
 import os
+import subprocess
 import sys
 
 from glob import glob
@@ -64,6 +65,28 @@ class UploadWorker(QThread):
             self.fileEnd.emit(row, result)
             row += 1
 
+class PdfSplitWorker(QThread):
+
+    fileStart = pyqtSignal(int)
+    fileEnd = pyqtSignal(int, dict)
+
+    def __init__(self, cmdlist, parent=None):
+        super(PdfSplitWorker, self).__init__(parent)
+        self.cmdlist = cmdlist
+        self.request_stop = 0
+
+    def run(self):
+        row = 0
+        for cmd in self.cmdlist:
+            if self.request_stop:
+                break
+            self.fileStart.emit(row)
+            try:
+                subprocess.Popen(cmd)
+            except Exception as e:
+                result = dict(err=str(e))
+            self.fileEnd.emit(row, result)
+            row += 1
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 

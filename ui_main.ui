@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>红云电子书制作工具</string>
+   <string>延安红云平台辅助工具</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -100,12 +100,19 @@
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>帮助</string>
+     <string>帮助(&amp;H)</string>
     </property>
     <addaction name="actionHelp"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>工具(&amp;T)</string>
+    </property>
+    <addaction name="action_split_pdf"/>
+   </widget>
    <addaction name="menu_file"/>
+   <addaction name="menu_2"/>
    <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -121,6 +128,8 @@
    </attribute>
    <addaction name="actionSelectDirectory"/>
    <addaction name="actionSelectFiles"/>
+   <addaction name="separator"/>
+   <addaction name="action_split_pdf"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
@@ -162,7 +171,10 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>停止转换</string>
+    <string>停止</string>
+   </property>
+   <property name="toolTip">
+    <string>停止正在进行的任务</string>
    </property>
   </action>
   <action name="actionUpload">
@@ -182,6 +194,14 @@
    </property>
    <property name="toolTip">
     <string>使用说明和帮助</string>
+   </property>
+  </action>
+  <action name="action_split_pdf">
+   <property name="text">
+    <string>拆分PDF</string>
+   </property>
+   <property name="toolTip">
+    <string>把一个大的PDF文件拆分成为几个小文件</string>
    </property>
   </action>
  </widget>

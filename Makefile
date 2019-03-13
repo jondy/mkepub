@@ -3,7 +3,7 @@ PYUIC5 = py37/Scripts/pyuic5
 PYINSTALLER = py37/Scripts/pyinstaller
 
 HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import pypdf2
-DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.'
+DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk'
 
 .PHONY: test build publish
 
