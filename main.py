@@ -88,6 +88,7 @@ class PdfSplitWorker(QThread):
             self.fileEnd.emit(row, result)
             row += 1
 
+
 class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self):

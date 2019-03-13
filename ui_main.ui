@@ -109,7 +109,7 @@
     <property name="title">
      <string>工具(&amp;T)</string>
     </property>
-    <addaction name="action_split_pdf"/>
+    <addaction name="actionSplitPdf"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_2"/>
@@ -129,7 +129,7 @@
    <addaction name="actionSelectDirectory"/>
    <addaction name="actionSelectFiles"/>
    <addaction name="separator"/>
-   <addaction name="action_split_pdf"/>
+   <addaction name="actionSplitPdf"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
@@ -196,7 +196,7 @@
     <string>使用说明和帮助</string>
    </property>
   </action>
-  <action name="action_split_pdf">
+  <action name="actionSplitPdf">
    <property name="text">
     <string>拆分PDF</string>
    </property>
