@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>924</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>延安红云平台辅助工具</string>
+   <string>延安红云平台编辑辅助工具</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -80,7 +80,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>924</width>
      <height>26</height>
     </rect>
    </property>

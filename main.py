@@ -65,6 +65,7 @@ class UploadWorker(QThread):
             self.fileEnd.emit(row, result)
             row += 1
 
+
 class PdfSplitWorker(QThread):
 
     fileStart = pyqtSignal(int)
@@ -103,6 +104,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionStart.triggered.connect(self.startTransform)
         self.actionStop.triggered.connect(self.stopTransform)
         self.actionUpload.triggered.connect(self.uploadFiles)
+        self.actionSplitPdf.triggered.connect(self.splitPdfFile)
         self.actionAbout.triggered.connect(self.about)
         self.actionHelp.triggered.connect(self.showHelp)
 
@@ -142,12 +144,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options = QFileDialog.Options()
         files, _ = QFileDialog.getOpenFileNames(
             self, '选择文件',
-            self._lastPath, '文本文件 (*.txt)',
+            self._lastPath, '文本文件 (*.txt);;PDF 文件 (*.pdf);;所有文件 (*.*)',
             options=options)
 
         if files:
             self._setLastPath(os.path.dirname(files[0]))
             self._initFileList(files)
+
+    def splitPdfFile(self):
+        pass
 
     def showHelp(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
