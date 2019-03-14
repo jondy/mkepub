@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-
+import logging
 import os
 import sys
 
@@ -89,6 +89,7 @@ class PdfSplitWorker(QThread):
                 ret, msg = split_pdf_file(src, dest, pages, cwd=path)
                 result = dict(err=msg if ret else None)
             except Exception as e:
+                logging.exception(e)
                 result = dict(err=str(e))
             self.fileEnd.emit(row, result)
             row += 1
@@ -174,6 +175,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pagelist = []
         statinfo = os.stat(filename)
         n = statinfo.st_size / (1024 * 1024) / 10
+        if n == 0:
+            QMessageBox.information(self, self.windowTitle(), '文件小于 10M，无需分割')
+            return
+
         n += 1
         pages = get_pdf_num_pages(filename)
         delta = int(pages / n)
@@ -182,6 +187,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pagelist.append([i, i + delta - 1])
             i += delta
         pagelist[-1][-1] = pages
+        pagelist = ['%d-%d' % (x, y) for x, y in pagelist]
 
         w = self.tableWidget
         for i in range(w.rowCount()):
@@ -190,10 +196,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         name = os.path.splitext(os.path.basename(filename))[0]
         destlist = []
         for row in range(len(pagelist)):
-            destname = QTableWidgetItem('%s-%d.pdf' % (name, row + 1))
+            destname = '%s-%d.pdf' % (name, row + 1)
             destlist.append(os.path.join(path, destname))
             w.insertRow(row)
-            w.setItem(row, 0, destname)
+            w.setItem(row, 0, QTableWidgetItem(destname))
 
         self._splitPdf(filename, pagelist, destlist)
 
@@ -235,6 +241,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handleFileEnd(self, row, result):
         w = self.tableWidget
         if 'err' in result:
+            print(result['err'])
             w.item(row, COL_STATUS).setText('转换失败: 文本格式不正确')
             w.item(row, COL_STATUS).setBackground(Qt.darkGray)
         else:

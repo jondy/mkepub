@@ -18,9 +18,9 @@ def get_pdf_num_pages(filename):
 def split_pdf_file(source, target, pages, cwd=None):
     cmdlist = [CMD_PDFTK, os.path.abspath(source), 'cat', pages,
                'output', os.path.abspath(target)]
-    p = subprocess(cmdlist,
-                   cwd=cwd,
-                   stdout=subprocess.PIPE,
-                   stderr=subprocess.STDOUT)
+    p = subprocess.Popen(cmdlist,
+                         cwd=cwd,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
     output, _ = p.communicate()
     return p.returncode, output
