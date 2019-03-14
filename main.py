@@ -3,7 +3,6 @@
 #
 
 import os
-import subprocess
 import sys
 
 from glob import glob
@@ -16,6 +15,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
 
 from transform import process_file, upload_file, save_result
 from ui_main import Ui_MainWindow
+from splitter import split_pdf_file, get_pdf_num_pages
 
 COL_STATUS = 1
 COL_UPLOAD = 2
@@ -71,19 +71,23 @@ class PdfSplitWorker(QThread):
     fileStart = pyqtSignal(int)
     fileEnd = pyqtSignal(int, dict)
 
-    def __init__(self, cmdlist, parent=None):
+    def __init__(self, filename, cmdlist, parent=None):
         super(PdfSplitWorker, self).__init__(parent)
+        self.filename = filename
         self.cmdlist = cmdlist
         self.request_stop = 0
 
     def run(self):
         row = 0
-        for cmd in self.cmdlist:
+        path = os.path.abspath(os.path.dirname(__file__))
+        src = self.filename
+        for dest, pages in self.cmdlist:
             if self.request_stop:
                 break
             self.fileStart.emit(row)
             try:
-                subprocess.Popen(cmd)
+                ret, msg = split_pdf_file(src, dest, pages, cwd=path)
+                result = dict(err=msg if ret else None)
             except Exception as e:
                 result = dict(err=str(e))
             self.fileEnd.emit(row, result)
@@ -96,7 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-        self._settings = QSettings('Dashingsoft', 'EPUB-Maker')
+        self._settings = QSettings('Dashingsoft', 'YanHong Editor')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
 
         self.actionSelectDirectory.triggered.connect(self.selectDirectory)
@@ -144,21 +148,69 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options = QFileDialog.Options()
         files, _ = QFileDialog.getOpenFileNames(
             self, '选择文件',
-            self._lastPath, '文本文件 (*.txt);;PDF 文件 (*.pdf);;所有文件 (*.*)',
+            self._lastPath, '文本文件 (*.txt)',
             options=options)
 
         if files:
             self._setLastPath(os.path.dirname(files[0]))
             self._initFileList(files)
 
+    def _selectPdfFile(self):
+        options = QFileDialog.Options()
+        files, _ = QFileDialog.getOpenFileNames(
+            self, '选择文件',
+            self._lastPath, 'PDF 文件 (*.pdf)',
+            options=options)
+
+        if files:
+            self._setLastPath(os.path.dirname(files[0]))
+            return files[0]
+
     def splitPdfFile(self):
-        pass
+        filename = self._selectPdfFile()
+        if filename is None:
+            return
+
+        pagelist = []
+        statinfo = os.stat(filename)
+        n = statinfo.st_size / (1024 * 1024) / 10
+        n += 1
+        pages = get_pdf_num_pages(filename)
+        delta = int(pages / n)
+        i = 1
+        while i < pages:
+            pagelist.append([i, i + delta - 1])
+            i += delta
+        pagelist[-1][-1] = pages
+
+        w = self.tableWidget
+        for i in range(w.rowCount()):
+            w.removeRow(0)
+        path = os.path.dirname(filename)
+        name = os.path.splitext(os.path.basename(filename))[0]
+        destlist = []
+        for row in range(len(pagelist)):
+            destname = QTableWidgetItem('%s-%d.pdf' % (name, row + 1))
+            destlist.append(os.path.join(path, destname))
+            w.insertRow(row)
+            w.setItem(row, 0, destname)
+
+        self._splitPdf(filename, pagelist, destlist)
+
+    def _splitPdf(self, filename, pagelist, destlist):
+        worker = PdfSplitWorker(filename, zip(destlist, pagelist))
+        worker.fileStart.connect(self.handleFileStart)
+        worker.fileEnd.connect(self.handleFileEnd)
+        worker.start()
+
+        self._worker = worker
+        self.actionStop.setEnabled(True)
 
     def showHelp(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
 
     def about(self):
-        QMessageBox.about(self, '关于', '红云电子书制作工具 v0.1a1')
+        QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 v0.1a1')
 
     def startTransform(self):
         if self._filelist:
