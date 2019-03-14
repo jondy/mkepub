@@ -9,7 +9,7 @@ from glob import glob
 
 from PyQt5.QtCore import Qt, QDir, QSettings, QUrl, QFileInfo, \
     QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QFont, QDesktopServices
+from PyQt5.QtGui import QFont, QDesktopServices, QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
     QFileDialog, QTableWidgetItem
 
@@ -19,6 +19,8 @@ from splitter import split_pdf_file, get_split_pages
 
 COL_STATUS = 1
 COL_UPLOAD = 2
+
+__version__ = '0.1a2'
 
 
 class EpubWorker(QThread):
@@ -101,7 +103,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
-
+        self.setWindowIcon(QIcon('logo.ico'))
+        
         self._settings = QSettings('Dashingsoft', 'YanHong Editor')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
 
@@ -209,7 +212,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
 
     def about(self):
-        QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 v0.1a1')
+        QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 ' + __version__)
 
     def startTransform(self):
         if self._filelist:
