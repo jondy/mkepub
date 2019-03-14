@@ -104,7 +104,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.ico'))
-        
+
         self._settings = QSettings('Dashingsoft', 'YanHong Editor')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
 
