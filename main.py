@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
 
 from transform import process_file, upload_file, save_result
 from ui_main import Ui_MainWindow
-from splitter import split_pdf_file, get_pdf_num_pages
+from splitter import split_pdf_file, get_split_pages
 
 COL_STATUS = 1
 COL_UPLOAD = 2
@@ -40,6 +40,7 @@ class EpubWorker(QThread):
             try:
                 result = process_file(filename)
             except Exception as e:
+                logging.exception(e)
                 result = dict(err=str(e))
             self.fileEnd.emit(row, result)
             row += 1
@@ -87,7 +88,7 @@ class PdfSplitWorker(QThread):
             self.fileStart.emit(row)
             try:
                 ret, msg = split_pdf_file(src, dest, pages, cwd=path)
-                result = dict(err=msg if ret else None)
+                result = dict(err=msg) if ret else dict()
             except Exception as e:
                 logging.exception(e)
                 result = dict(err=str(e))
@@ -116,6 +117,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._filelist = []
         self._result = []
         self._worker = None
+
+    def _showMessage(self, msg):
+        QMessageBox.information(self, self.windowTitle(), msg)
 
     def _setLastPath(self, path):
         self._lastPath = path
@@ -172,21 +176,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filename is None:
             return
 
-        pagelist = []
-        statinfo = os.stat(filename)
-        n = statinfo.st_size / (1024 * 1024) / 10
-        if n == 0:
-            QMessageBox.information(self, self.windowTitle(), '文件小于 10M，无需分割')
+        pagelist = get_split_pages(filename)
+        if not pagelist:
+            self._showMessage('小文件无需分割')
             return
-
-        n += 1
-        pages = get_pdf_num_pages(filename)
-        delta = int(pages / n)
-        i = 1
-        while i < pages:
-            pagelist.append([i, i + delta - 1])
-            i += delta
-        pagelist[-1][-1] = pages
         pagelist = ['%d-%d' % (x, y) for x, y in pagelist]
 
         w = self.tableWidget
@@ -235,17 +228,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handleFileStart(self, row):
         w = self.tableWidget
         w.setCurrentCell(row, 0)
-        w.setItem(row, COL_STATUS, QTableWidgetItem('正在转换...'))
+        w.setItem(row, COL_STATUS, QTableWidgetItem('正在生成...'))
 
     @pyqtSlot(int, dict)
     def handleFileEnd(self, row, result):
         w = self.tableWidget
         if 'err' in result:
-            print(result['err'])
-            w.item(row, COL_STATUS).setText('转换失败: 文本格式不正确')
+            w.item(row, COL_STATUS).setText('生成失败: %s' % result['err'])
             w.item(row, COL_STATUS).setBackground(Qt.darkGray)
         else:
-            w.item(row, COL_STATUS).setText('转换完成')
+            w.item(row, COL_STATUS).setText('成功完成')
             w.item(row, COL_STATUS).setBackground(Qt.lightGray)
         self._result.append(result)
 

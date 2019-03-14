@@ -180,7 +180,14 @@ def process_file(filename, output='output'):
     # if sec is not None:
     #     book.toc.append(sec)
 
-    book.toc.extend(build_toc(reader.get_toc()))
+    sections = reader.get_toc()
+    if not sections:
+        raise Exception('没有发现任何章节，可能章节格式不正确')
+
+    toc = build_toc(sections)
+    if toc is None:
+        raise Exception('不正确的章节结构')
+    book.toc.extend(toc)
 
     reader.close()
 
