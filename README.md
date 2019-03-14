@@ -1,4 +1,4 @@
-# 延安红云编辑辅助工具使用说明
+# 延安红云编辑辅助工具
 
 延安红云编辑辅助工具用于处理各种素材，主要包括
 
@@ -7,9 +7,7 @@
 
 ## 安装
 
-下载安装包
-
-    http://www.yancloud.red/downloads/yanhong-editor.exe
+点击这里下载[安装包](http://www.yancloud.red/downloads/yanhong-editor.exe)
 
 双击运行安装包，安装好之后会有桌面快捷方式 `延安红云编辑工具` ，双击即
 可打开工具。
