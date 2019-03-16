@@ -4,7 +4,7 @@ PYINSTALLER = py37/Scripts/pyinstaller
 PANDOC = tools/pandoc/pandoc
 
 HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import pypdf2
-DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk'
+DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk' --add-data 'config.json;.'
 
 .PHONY: test build publish
 

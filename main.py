@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+import json
 import logging
 import os
 import sys
@@ -100,10 +101,11 @@ class PdfSplitWorker(QThread):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
-    def __init__(self):
+    def __init__(self, options):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.ico'))
+        self._options = options
 
         self._settings = QSettings('Dashingsoft', 'YanHong Editor')
         self._lastPath = self._settings.value('lastPath', QDir.currentPath())
@@ -179,7 +181,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if filename is None:
             return
 
-        pagelist = get_split_pages(filename)
+        pagesize = self._options['pdf'].get('split_size', 20.0)
+        pagelist = get_split_pages(filename, size=pagesize)
         if not pagelist:
             self._showMessage('小文件无需分割')
             return
@@ -275,13 +278,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 def main():
+    path = os.path.dirname(__file__)
+    with open(os.path.join(path, 'config.json')) as f:
+        conf = json.load(f)
+        
     app = QApplication(sys.argv)
     font = QFont('宋体')
     pointsize = font.pointSize()
     font.setPixelSize(pointsize*90/72)
     app.setFont(font)
 
-    window = MainWindow()
+    window = MainWindow(conf)
     window.show()
 
     try:
