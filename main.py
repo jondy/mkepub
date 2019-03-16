@@ -21,8 +21,6 @@ from splitter import split_pdf_file, get_split_pages
 COL_STATUS = 1
 COL_UPLOAD = 2
 
-__version__ = '0.1a2'
-
 
 class EpubWorker(QThread):
 
@@ -215,7 +213,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
 
     def about(self):
-        QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 ' + __version__)
+        ver = self._options.get('version', '0.1a1')
+        QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 (v%s)' % ver)
 
     def startTransform(self):
         if self._filelist:
