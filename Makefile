@@ -2,6 +2,7 @@
 PYUIC5 = py37/Scripts/pyuic5
 PYINSTALLER = py37/Scripts/pyinstaller
 PANDOC = tools/pandoc/pandoc
+INNOSETUP = C:/Program Files (x86)/Inno Setup 5/Compil32.exe
 
 HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import pypdf2
 DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk' --add-data 'config.json;.'
@@ -19,6 +20,8 @@ docs: README.md
 
 publish:
 	$(PYINSTALLER) -y -w --name mkepub ${HIDDEN_IMPORTS} ${DATA_FILES} main.py transform.py
+	"$(INNOSETUP)" /cc setup.iss
+	scp -i ~/.ssh/id_rsa dist/yanhong-editor.exe root@yancloud.red:/www/wwwroot/www.yancloud.red/downloads
 
 clean:
 	rm -rf *.pyc *.pyo __pycache__
