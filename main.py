@@ -255,7 +255,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def handleWorkerFinished(self):
         self.tableWidget.setCurrentItem(None)
         if not self._worker.request_stop:
-            output = save_result(self._filelist, self._result)
+            filename = os.path.join('output', 'upload-epub.xlsx')
+            output = save_result(self._filelist, self._result, filename)
             msg = ('文件转换完成，所有文件存放在目录：',
                    os.path.abspath('output'), '',
                    '上传列表已经保存在文件: %s, 是否查看?' % output)
