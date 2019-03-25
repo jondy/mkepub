@@ -7,6 +7,7 @@ import os
 import sys
 
 from glob import glob
+from traceback import print_tb
 
 from PyQt5.QtCore import Qt, QDir, QSettings, QUrl, QFileInfo, \
     QThread, pyqtSignal, pyqtSlot
@@ -123,6 +124,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _showMessage(self, msg):
         QMessageBox.information(self, self.windowTitle(), msg)
+
+    def exceptHook(self, t, v, tb):
+        print_tb(tb)
+        self._showMessage(str(v))
 
     def _setLastPath(self, path):
         self._lastPath = path
@@ -280,22 +285,32 @@ def main():
     path = os.path.dirname(__file__)
     with open(os.path.join(path, 'config.json')) as f:
         conf = json.load(f)
-        
+
+    if os.path.exists(os.path.join(path, 'logs')):
+        logfile = os.path.join(path, 'logs', 'mkepub.log')
+    else:
+        logfile = os.path.expanduser(os.path.join('~', 'mkepub.log'))
+
+    logging.basicConfig(
+        level=logging.INFO,
+        filename=logfile,
+        filemode='w',
+        format='%(levelname)-8s %(message)s')
+
     app = QApplication(sys.argv)
     font = QFont('宋体')
     pointsize = font.pointSize()
     font.setPixelSize(pointsize*90/72)
     app.setFont(font)
 
-    window = MainWindow(conf)
-    window.show()
+    win = MainWindow(conf)
+    sys.excepthook = win.exceptHook
+    win.show()
 
     try:
         ret = app.exec_()
-    except Exception as e:
-        QMessageBox.critical(window, window.windowTitle(), str(e))
-        if sys.flags.debug:
-            raise
+    except Exception:
+        logging.exception('Unhandle exception')
         ret = -1
     sys.exit(ret)
 
