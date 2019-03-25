@@ -7,7 +7,7 @@
 
 ## 安装
 
-点击这里下载[安装包](http://www.yancloud.red/downloads/yanhong-editor.exe)
+点击这里下载[安装包](http://yancloud.red/downloads/yanhong-editor.exe)
 
 双击运行安装包，安装好之后会有桌面快捷方式 `延安红云编辑工具` ，双击即
 可打开工具。
@@ -34,6 +34,13 @@
 输出文件中。
 
 注释行以 `!#` 开始，这样的行也会被忽略。
+
+右对齐段落以 `#:` 开始，例如
+
+    #: 编者
+    #: 2017年5月12日
+    
+这两段在 epub 中会右对齐。
 
 ### 使用方法
 

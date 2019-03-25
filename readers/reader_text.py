@@ -10,6 +10,10 @@ from ebooklib import epub
 PAT_TITLE = r'^(#+)\s*(.*)\s*$'
 PAT_EMPTY = r'<p>\s*</p>'
 PAT_COMMENT = '!#'
+PAT_ALIGN_RIGHT = '#:'
+
+TEMPLATE_PARA = '<p>{0}</p>'
+TEMPLATE_RIGHT_PARA = '<p class="text-right">{0}</p>'
 
 COVER_SUFFIX = '-封面.jpg'
 
@@ -89,7 +93,7 @@ class TextReader:
             file_name = 'Text/chapter%02d.xhtml' % self._pindex
             level, title = self._toc.pop()
             page = epub.EpubHtml(title=title, file_name=file_name)
-            page.set_content(''.join(paras))
+            page.set_content('<div>%s</div>' % ''.join(paras))
             self._toc.append((level, page))
             return page
 
@@ -123,12 +127,18 @@ class TextReader:
                         titles.append(t)
                         level = n
                 if line.strip() not in titles:
-                    paras.append('<p>{0}</p>'.format(line))
+                    if line.startswith(PAT_ALIGN_RIGHT):
+                        n = len(PAT_ALIGN_RIGHT)
+                        paras.append(TEMPLATE_RIGHT_PARA.format(line[n:]))
+                    else:
+                        paras.append(TEMPLATE_PARA.format(line))
 
         if not_empty(paras):
             yield write_page()
 
     def _is_title(self, line):
+        if line.startswith(PAT_ALIGN_RIGHT):
+            return
         for pat in self._pat_titles:
             m = pat.match(line)
             if m:

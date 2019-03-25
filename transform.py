@@ -142,8 +142,15 @@ def process_file(filename, output='output'):
                               content=style)
     book.add_item(cover_css)
 
-    meta = reader.get_metadata()
+    path = os.path.dirname(__file__)
+    with open(os.path.join(path, 'templates', 'default.css')) as f:
+        default_css = epub.EpubItem(uid="style_default",
+                                    file_name="../Styles/default.css",
+                                    media_type="text/css",
+                                    content=f.read())
+        book.add_item(default_css)
 
+    meta = reader.get_metadata()
     book.set_identifier(meta.get('ISBN', str(uuid.uuid4())))
 
     name = os.path.basename(filename).split('.')[0]
@@ -163,6 +170,7 @@ def process_file(filename, output='output'):
         book.toc = []
 
     for item in reader.contents():
+        item.add_item(default_css)
         book.add_item(item)
 
     # sec = None
