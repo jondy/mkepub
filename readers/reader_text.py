@@ -11,10 +11,10 @@ PAT_TITLE = r'^(#+)\s*(.*)\s*$'
 PAT_EMPTY = r'<p>\s*</p>'
 PAT_COMMENT = '!#'
 PAT_ALIGN_RIGHT = '#:'
-PAT_INLINE_IMAGE = r'!\[(.+\)]\((.+)\)'
+PAT_INLINE_IMAGE = r'!\[(.+)\]\((.+)\)'
 
 TEMPLATE_PARA = '<p>{0}</p>'
-TEMPLATE_INLINE_IMAGE = '<img src="../Images/{0}" alt="{1}"/><p class="epub-picture">{1}</p>'
+TEMPLATE_INLINE_IMAGE = '<div class="picture"><img src="../Images/{0}" alt="{1}"/><p>{1}</p></div>'
 TEMPLATE_RIGHT_PARA = '<p class="text-right">{0}</p>'
 
 COVER_SUFFIX = '-封面.jpg'
@@ -133,17 +133,18 @@ class TextReader:
                         paras.insert(0, '<h{0}>{1}</h{0}>'.format(n, t))
                         titles.append(t)
                         level = n
-                if line.strip() not in titles:
+                if line.strip() and line.strip() not in titles:
                     if line.startswith(PAT_ALIGN_RIGHT):
                         n = len(PAT_ALIGN_RIGHT)
                         paras.append(TEMPLATE_RIGHT_PARA.format(line[n:]))
                     else:
                         m = self._pat_inline_image.match(line.strip())
                         if m:
-                            title, url = m.group(1, 2)                            
+                            title, url = m.group(1, 2)
+                            fname = os.path.join(os.path.dirname(self._filename), url)
                             media_type = 'images/' + url.rsplit('.')[-1]
-                            with open(url, 'rb') as f:
-                                img = epub.EpubImage(
+                            with open(fname, 'rb') as f:
+                                img = epub.EpubItem(
                                     file_name='../Images/' + url,
                                     media_type=media_type,
                                     content=f.read())
