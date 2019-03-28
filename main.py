@@ -227,7 +227,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         dialog = CorrectDialog(self)
         dialog.show()
-        dialog.loadFile(self._filelist[row], rulers=self._options['rulers'])
+        dialog.loadFile(self._filelist[row])
 
     def showHelp(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
@@ -248,6 +248,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def uploadFiles(self):
         pass
+
+    def viewRulers(self):
+        path = os.path.dirname(__file__)
+        filename = os.path.join(path, 'rulers.txt')
+        QDesktopServices.openUrl(QUrl.fromLocalFile(filename))
+
+    def loadRulers(self):
+        path = os.path.dirname(__file__)
+        filename = os.path.join(path, 'rulers.txt')
+        with open(filename, encoding='utf-8') as f:
+            return json.load(f)
 
     @pyqtSlot(int)
     def handleFileStart(self, row):

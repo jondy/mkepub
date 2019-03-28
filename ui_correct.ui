@@ -26,16 +26,6 @@
       <item>
        <widget class="QTextEdit" name="textEdit"/>
       </item>
-      <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -124,16 +114,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonResetRuler">
+       <widget class="QPushButton" name="pushButtonViewRuler">
         <property name="text">
-         <string>默认规则</string>
+         <string>查看规则</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonReloadRuler">
+       <widget class="QPushButton" name="pushButtonUpdateRuler">
         <property name="text">
-         <string>应用规则</string>
+         <string>更新规则</string>
         </property>
        </widget>
       </item>

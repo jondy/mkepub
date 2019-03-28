@@ -1,0 +1,27 @@
+[
+  {
+    "type": "replace",
+    "title": "行首空格",
+    "from": "^\\s+",
+    "to": ""
+  },
+  {
+    "type": "replace",
+    "title": "行尾空格",
+    "from": "\\s+$",
+    "to": ""
+  },
+
+  {
+    "type": "char",
+    "title": "英文全角标点替换为半角",
+    "from": "～｀！＠＃＄％＾＆＊（）－＿＋＝［］｛｝｜＼；：＇＂＜＞，．？／",
+    "to": "~`!@#$%^&*()-_+=[]{}|\;:'\"<>,.?/"
+  },
+  {
+    "type": "char",
+    "title": "英文全角字符替换为半角",
+    "from": "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ",
+    "to": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  }
+] 
