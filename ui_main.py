@@ -19,7 +19,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
-        self.tableWidget.setStyleSheet("selection-background-color: rgb(85, 170, 255);")
         self.tableWidget.setFrameShape(QtWidgets.QFrame.Box)
         self.tableWidget.setFrameShadow(QtWidgets.QFrame.Raised)
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
