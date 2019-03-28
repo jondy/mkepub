@@ -12,8 +12,9 @@ DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 
 test:
 	ls test/
 
-build: ui_main.ui
+build: ui_main.ui ui_correct.ui
 	$(PYUIC5) ui_main.ui > ui_main.py
+	$(PYUIC5) ui_correct.ui > ui_correct.py
 
 docs: README.md
 	$(PANDOC) -s --metadata pagetitle="延安红云平台编辑工具" README.md > README.html

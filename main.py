@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
 
 from transform import process_file, upload_file, save_result
 from ui_main import Ui_MainWindow
+from correct import CorrectDialog
 from splitter import split_pdf_file, get_split_pages
 
 COL_STATUS = 1
@@ -117,6 +118,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSplitPdf.triggered.connect(self.splitPdfFile)
         self.actionAbout.triggered.connect(self.about)
         self.actionHelp.triggered.connect(self.showHelp)
+        self.actionCorrect.triggered.connect(self.correctText)
 
         self._filelist = []
         self._result = []
@@ -214,6 +216,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._worker = worker
         self.actionStop.setEnabled(True)
 
+    def correctText(self):
+        if not self._filelist:
+            return
+
+        w = self.tableWidget
+        row = w.currentRow()
+        if row == -1:
+            self._showMessage('请选中表格中的一个文件')
+            return
+        dialog = CorrectDialog(self)
+        dialog.show()
+        dialog.loadFile(self._filelist[row], rulers=self._options['rulers'])
+
     def showHelp(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile('README.html'))
 
@@ -284,7 +299,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 def main():
     path = os.path.dirname(__file__)
-    with open(os.path.join(path, 'config.json')) as f:
+    with open(os.path.join(path, 'config.json'), encoding='utf-8') as f:
         conf = json.load(f)
 
     if os.path.exists(os.path.join(path, 'logs')):

@@ -173,6 +173,9 @@ def process_file(filename, output='output'):
         item.add_item(default_css)
         book.add_item(item)
 
+    for item in reader.images():
+        book.add_item(item)
+
     # sec = None
     # for item in reader.get_toc():
     #     n, p = item

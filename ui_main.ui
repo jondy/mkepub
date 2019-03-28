@@ -107,6 +107,7 @@
      <string>工具(&amp;T)</string>
     </property>
     <addaction name="actionSplitPdf"/>
+    <addaction name="actionCorrect"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_2"/>
@@ -128,6 +129,7 @@
    <addaction name="separator"/>
    <addaction name="actionSplitPdf"/>
    <addaction name="separator"/>
+   <addaction name="actionCorrect"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
    <addaction name="separator"/>
@@ -199,6 +201,14 @@
    </property>
    <property name="toolTip">
     <string>把一个大的PDF文件拆分成为几个小文件</string>
+   </property>
+  </action>
+  <action name="actionCorrect">
+   <property name="text">
+    <string>校对文本</string>
+   </property>
+   <property name="toolTip">
+    <string>校对文本</string>
    </property>
   </action>
  </widget>
