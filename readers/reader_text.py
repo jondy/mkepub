@@ -11,8 +11,10 @@ PAT_TITLE = r'^(#+)\s*(.*)\s*$'
 PAT_EMPTY = r'<p>\s*</p>'
 PAT_COMMENT = '!#'
 PAT_ALIGN_RIGHT = '#:'
+PAT_INLINE_IMAGE = r'!\[(.+\)]\((.+)\)'
 
 TEMPLATE_PARA = '<p>{0}</p>'
+TEMPLATE_INLINE_IMAGE = '<img src="../Images/{0}" alt="{1}"/><p class="epub-picture">{1}</p>'
 TEMPLATE_RIGHT_PARA = '<p class="text-right">{0}</p>'
 
 COVER_SUFFIX = '-封面.jpg'
@@ -35,6 +37,7 @@ class TextReader:
         self._encoding = None
         self._pat_titles = [re.compile(PAT_TITLE)]
         self._pat_empty = re.compile(PAT_EMPTY)
+        self._pat_inline_image = re.compile(PAT_INLINE_IMAGE)
 
     def is_support(self, ext):
         return ext in ('.txt',)
@@ -52,6 +55,7 @@ class TextReader:
 
     def open(self, filename):
         self._filename = filename
+        self._images = []
         with open(self._filename, 'rb') as f:
             buf = f.read()
             charinfo = chardet.detect(buf)
@@ -79,6 +83,9 @@ class TextReader:
 
     def get_toc(self):
         return self._toc
+
+    def images(self):
+        yield from self._images
 
     def contents(self):
         self._pindex = 0
@@ -131,7 +138,19 @@ class TextReader:
                         n = len(PAT_ALIGN_RIGHT)
                         paras.append(TEMPLATE_RIGHT_PARA.format(line[n:]))
                     else:
-                        paras.append(TEMPLATE_PARA.format(line))
+                        m = self._pat_inline_image.match(line.strip())
+                        if m:
+                            title, url = m.group(1, 2)                            
+                            media_type = 'images/' + url.rsplit('.')[-1]
+                            with open(url, 'rb') as f:
+                                img = epub.EpubImage(
+                                    file_name='../Images/' + url,
+                                    media_type=media_type,
+                                    content=f.read())
+                            self._images.append(img)
+                            paras.append(TEMPLATE_INLINE_IMAGE.format(url, title))
+                        else:
+                            paras.append(TEMPLATE_PARA.format(line))
 
         if not_empty(paras):
             yield write_page()
