@@ -11,7 +11,6 @@
     "from": "\\s+$",
     "to": ""
   },
-
   {
     "type": "char",
     "title": "英文全角标点替换为半角",
@@ -23,5 +22,12 @@
     "title": "英文全角字符替换为半角",
     "from": "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ",
     "to": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  }
-] 
+  },
+  {
+    "type": "replace",
+    "title": "无故折行",
+    "from": "([^。！\\s])\n",
+    "to": "\\1"
+  },
+
+]
