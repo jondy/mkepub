@@ -9,9 +9,9 @@ import sys
 from glob import glob
 from traceback import print_tb
 
-from PyQt5.QtCore import Qt, QDir, QSettings, QUrl, QFileInfo, \
+from PyQt5.QtCore import Qt, QDir, QSettings, QUrl, \
     QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QFont, QDesktopServices, QIcon
+from PyQt5.QtGui import QFont, QDesktopServices, QIcon, QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
     QFileDialog, QTableWidgetItem
 
@@ -255,6 +255,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile(filename))
 
     def loadRulers(self):
+        #ffc107 yellow
+        #17a2b8 info
+        #6c757d secondary
+        #f8f9fa light
         path = os.path.dirname(__file__)
         filename = os.path.join(path, 'rulers.txt')
         with open(filename, encoding='utf-8') as f:
@@ -271,7 +275,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         w = self.tableWidget
         if 'err' in result:
             w.item(row, COL_STATUS).setText('生成失败: %s' % result['err'])
-            w.item(row, COL_STATUS).setBackground(Qt.darkGray)
+            w.item(row, COL_STATUS).setBackground(QColor('#dc3545'))
         else:
             w.item(row, COL_STATUS).setText('成功完成')
             w.item(row, COL_STATUS).setBackground(Qt.lightGray)
