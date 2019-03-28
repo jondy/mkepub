@@ -41,6 +41,9 @@ class Ui_CorrectDialog(object):
         self.pushButtonPreview = QtWidgets.QPushButton(self.frame)
         self.pushButtonPreview.setObjectName("pushButtonPreview")
         self.verticalLayout_2.addWidget(self.pushButtonPreview)
+        self.pushButtonClearPreview = QtWidgets.QPushButton(self.frame)
+        self.pushButtonClearPreview.setObjectName("pushButtonClearPreview")
+        self.verticalLayout_2.addWidget(self.pushButtonClearPreview)
         self.pushButtonApply = QtWidgets.QPushButton(self.frame)
         self.pushButtonApply.setObjectName("pushButtonApply")
         self.verticalLayout_2.addWidget(self.pushButtonApply)
@@ -76,6 +79,7 @@ class Ui_CorrectDialog(object):
         _translate = QtCore.QCoreApplication.translate
         CorrectDialog.setWindowTitle(_translate("CorrectDialog", "校对文本文件"))
         self.pushButtonPreview.setText(_translate("CorrectDialog", "预览"))
+        self.pushButtonClearPreview.setText(_translate("CorrectDialog", "清除"))
         self.pushButtonApply.setText(_translate("CorrectDialog", "应用"))
         self.pushButtonRedo.setText(_translate("CorrectDialog", "Redo"))
         self.pushButtonUndo.setText(_translate("CorrectDialog", "Undo"))
