@@ -34,12 +34,13 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
 
     def loadFile(self, filename):
         self._filename = filename
-        self.resetRuler()
         reader = find_reader(filename)
         reader.open(filename)
         lines = list(reader._iter_lines())
         self.textEdit.setPlainText(''.join(lines))
         reader.close()
+
+        self.loadRulers()
 
     def previewRulers(self):
         plist = []
@@ -47,7 +48,7 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
             if r['type'] == 'char':
                 plist.append('[{0}]'.format(r['from']))
             else:
-                plist.extend(r['from'])
+                plist.append(r['from'])
         pat = QRegExp('|'.join(plist))
         selections = []
         self.textEdit.moveCursor(QTextCursor.Start)
@@ -69,13 +70,17 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
         for r in self._rulers:
             if r['type'] == 'char':
                 for i in range(len(r['from'])):
-                    text = re.sub(r['from'][i], r['to'][i], text)
+                    text = text.replace(r['from'][i], r['to'][i])
             else:
-                for i in range(len(r['from'])):
-                    pat = re.compile(r['from'][i], re.M)
-                    text = re.sub(pat, r['to'][i], text)
-
-        self.textEdit.setPlainText(text)
+                pat = re.compile(r['from'], re.M)
+                try:
+                    text = re.sub(pat, r['to'], text)
+                except Exception as e:
+                    print(e, r['from'])
+        self.textEdit.selectAll()
+        self.textEdit.insertPlainText(text)
+        # cur = self.textEdit.textCursor()
+        # self.textEdit.setPlainText(text)
         self._showMessage('使用规则自动校正文本完成')
 
     def saveFile(self):
