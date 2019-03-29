@@ -249,21 +249,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def uploadFiles(self):
         pass
 
-    def viewRulers(self):
-        path = os.path.dirname(__file__)
-        filename = os.path.join(path, 'rulers.txt')
-        QDesktopServices.openUrl(QUrl.fromLocalFile(filename))
-
-    def loadRulers(self):
-        #ffc107 yellow
-        #17a2b8 info
-        #6c757d secondary
-        #f8f9fa light
-        path = os.path.dirname(__file__)
-        filename = os.path.join(path, 'rulers.txt')
-        with open(filename, encoding='utf-8') as f:
-            return json.load(f)
-
     @pyqtSlot(int)
     def handleFileStart(self, row):
         w = self.tableWidget

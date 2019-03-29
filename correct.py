@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 #
 import json
+import os
 import re
 
-from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QTextCursor
+from PyQt5.QtCore import QRegExp, QUrl
+from PyQt5.QtGui import QTextCursor, QColor, QDesktopServices
 from PyQt5.QtWidgets import QDialog, QMessageBox, QTextEdit
 
 from ui_correct import Ui_CorrectDialog
@@ -23,17 +24,16 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
         self.pushButtonPreview.clicked.connect(self.previewRulers)
         self.pushButtonRedo.clicked.connect(self.textEdit.redo)
         self.pushButtonUndo.clicked.connect(self.textEdit.undo)
-        self.pushButtonResetRuler.clicked.connect(self.resetRuler)
-        self.pushButtonReloadRuler.clicked.connect(self.reloadRuler)
         self.pushButtonClearPreview.clicked.connect(self.clearPreview)
 
+        self.pushButtonViewRuler.clicked.connect(self.viewRulers)
+        self.pushButtonUpdateRuler.clicked.connect(self.loadRulers)
+
         self._filename = None
-        self._defaultRulers = []
         self._rulers = []
 
-    def loadFile(self, filename, rulers=[]):
+    def loadFile(self, filename):
         self._filename = filename
-        self._defaultRulers = rulers[:]
         self.resetRuler()
         reader = find_reader(filename)
         reader.open(filename)
@@ -56,7 +56,7 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
                 break
             m = QTextEdit.ExtraSelection()
             m.cursor = QTextCursor(self.textEdit.textCursor())
-            m.format.setBackground(Qt.yellow)
+            m.format.setBackground(QColor('#ffc107'))
             selections.append(m)
         self.textEdit.setExtraSelections(selections)
 
@@ -86,17 +86,28 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
             self._showMessage('保存成功')
 
     def reloadRuler(self):
-        text = self.plainTextEdit.toPlainText()
+        rtext = ''
         try:
-            self._rulers = json.loads(text)
+            self._rulers = json.loads(rtext)
             self._showMessage('新规则已经生效')
         except Exception as e:
             self._showMessage('规则格式不正确：<br>{0}'.format(e))
 
-    def resetRuler(self):
-        self._rulers = self._defaultRulers[:]
+    def saveRulers(self, filename):
         text = json.dumps(self._rulers, ensure_ascii=False, indent=2)
-        self.plainTextEdit.setPlainText(text)
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(text)
+
+    def viewRulers(self):
+        path = os.path.dirname(__file__)
+        filename = os.path.join(path, 'rulers.txt')
+        QDesktopServices.openUrl(QUrl.fromLocalFile(filename))
+
+    def loadRulers(self):
+        path = os.path.dirname(__file__)
+        filename = os.path.join(path, 'rulers.txt')
+        with open(filename, encoding='utf-8') as f:
+            self._rulers = json.load(f)
 
     def _showMessage(self, msg):
         QMessageBox.information(self, '文本校正', msg)
