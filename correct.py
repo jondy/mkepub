@@ -112,7 +112,11 @@ class CorrectDialog(QDialog, Ui_CorrectDialog):
         path = os.path.dirname(__file__)
         filename = os.path.join(path, 'rulers.txt')
         with open(filename, encoding='utf-8') as f:
-            self._rulers = json.load(f)
+            text = f.read()
+            i = 0
+            while text[i] != '[':
+                i += 1
+            self._rulers = json.loads(text[i:], encoding='utf-8')
 
     def _showMessage(self, msg):
         QMessageBox.information(self, '文本校正', msg)
