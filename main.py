@@ -198,11 +198,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for i in range(w.rowCount()):
             w.removeRow(0)
         path = os.path.dirname(filename)
+        output = self.path.join(path, 'output')
+        if not os.path.exists(output):
+            os.makedirs(output)
         name = os.path.splitext(os.path.basename(filename))[0]
         destlist = []
         for row in range(len(pagelist)):
             destname = '%s-%d.pdf' % (name, row + 1)
-            destlist.append(os.path.join(path, destname))
+            destlist.append(os.path.join(output, destname))
             w.insertRow(row)
             w.setItem(row, 0, QTableWidgetItem(destname))
 
