@@ -1,6 +1,8 @@
 import os
 from importlib import import_module
 
+COVER_SUFFIX = '-封面.jpg'
+
 _readers = []
 
 

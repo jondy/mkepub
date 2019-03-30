@@ -6,6 +6,7 @@ import os
 import re
 
 from ebooklib import epub
+from . import COVER_SUFFIX
 
 PAT_TITLE = r'^(#+)\s*(.*)\s*$'
 PAT_EMPTY = r'<p>\s*</p>'
@@ -17,8 +18,6 @@ TEMPLATE_PARA = '<p>{0}</p>'
 TEMPLATE_INLINE_IMAGE = '<div class="picture"><img src="../Images/{0}" alt="{1}"/><p>{1}</p></div>'
 TEMPLATE_RIGHT_PARA = '<p class="text-right">{0}</p>'
 
-COVER_SUFFIX = '-封面.jpg'
-
 MAX_META_ROW = 100
 PAT_METADATAS = {
     'title': ('书名:', '书名：'),
@@ -27,6 +26,51 @@ PAT_METADATAS = {
     'date': ('出版时间:', '出版时间：'),
     'ISBN': ('ISBN:', 'ISBN：'),
 }
+
+
+def build_toc(sections):
+    if not sections:
+        return None
+
+    def make_node(t):
+        return epub.Section(t) if isinstance(t, str) else t, []
+
+    level, page = sections[0]
+    node = make_node(page)
+    stack = [node]
+    toc = [node]
+
+    def reform_node():
+        if not stack[0][1]:
+            parent = stack[1][1] if len(stack) > 1 else toc
+            temp = parent.pop()
+            parent.append(temp[0])
+
+    ref = level
+    for level, page in sections[1:]:
+        node = make_node(page)
+        n = level - ref
+        if n >= len(stack):
+            if not isinstance(page, str):
+                for parent in stack:
+                    if not isinstance(parent[0], epub.Section):
+                        break
+                    if parent[0].href == '':
+                        parent[0].href = page.get_name()
+            stack[0][1].append(node)
+            stack.insert(0, node)
+        else:
+            reform_node()
+
+            if n == 0:
+                stack = [node]
+                toc.append(node)
+            else:
+                stack[:n] = []
+                stack[0][1].append(node)
+    reform_node()
+
+    return toc
 
 
 class TextReader:
@@ -82,10 +126,13 @@ class TextReader:
         return meta
 
     def get_toc(self):
-        return self._toc
+        return build_toc(self._toc)
 
     def images(self):
         yield from self._images
+
+    def stylesheets(self):
+        return []
 
     def contents(self):
         self._pindex = 0

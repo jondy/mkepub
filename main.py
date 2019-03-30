@@ -154,6 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if directory:
             self._setLastPath(directory)
             filelist = glob(os.path.join(directory, '*.txt'))
+            filelist.extend(glob(os.path.join(directory, '*.pdf')))
             if filelist:
                 self._initFileList(filelist)
             else:
@@ -163,7 +164,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options = QFileDialog.Options()
         files, _ = QFileDialog.getOpenFileNames(
             self, '选择文件',
-            self._lastPath, '文本文件 (*.txt)',
+            self._lastPath, '文本文件 (*.txt);;PDF 文件 (*.pdf);;所有文件 (*.*)',
             options=options)
 
         if files:

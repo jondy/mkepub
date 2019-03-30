@@ -48,7 +48,7 @@
 
     #: 编者
     #: 2017年5月12日
-    
+
 这两段在 epub 中会右对齐。
 
 **图片**
@@ -77,7 +77,26 @@
   出现在列表中
 * 点击 `开始转换`，后面的步骤和批量转换相同。
 
-## 分割 PDF
+## PDF 预处理
 
-点击工具栏按钮 `分割 PDF` ,选择一个PDF文件，会分割成为 10M 大小的多个
+为了减少 PDF 文件的大小，使用下面的方式进行预处理
+
+1.降低图片质量，从低到高 /screen, /default, /ebook, /printer, /prepress
+
+    pdf2ps file.pdf file.ps
+    ps2pdf -dPDFSETTINGS=/ebook file.ps file-optimized.pdf
+
+2. 删除重复图片
+
+     gs -o p3-optim.pdf -sDEVICE=pdfwrite -dDetectDuplicateImages=true p3.pdf
+
+3. 清除不必要项
+
+     gs  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4
+         -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true
+         -o p3-optim.pdf p3.pdf
+
+### 分割 PDF
+
+点击工具栏按钮 `分割 PDF` ,选择一个PDF文件，会分割成为 20M 大小的多个
 PDF 文件，存放在和原文件相同的目录下面。

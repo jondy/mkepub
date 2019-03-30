@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import logging
 import os
 import subprocess
 
@@ -8,13 +8,17 @@ from glob import glob
 from shutil import rmtree
 from tempfile import mkdtemp
 
-CMD_PDF2HTML = ['pdf2htmlEx', '--split-pages', '1',
-                '--embed-css', '0', '--embed-font', '0',
-                '--embed-image', '0', '--embed-javascript', '0',
-                '--embed-outline', '0',
-                '--css-filename', 'pdf2.css',
-                '--outline-filename', 'frame.xhtml',
-                '--page-filename', 'page-%d.xhtml']
+import epub
+
+from . import COVER_SUFFIX
+
+CMD_PDF2HTML = ['tools/pdf2html/pdf2htmlEx.exe',
+                '--split-pages', '1', '--printing', '0',
+                '--embed', 'cfijo', '--process-outline', '0',
+                '--bg-format', 'jpg',
+                '--page-filename', 'chapter%02d.xhtml']
+
+logger = logging.getLogger('mkepub.pdfreader')
 
 
 class PdfReader:
@@ -30,7 +34,8 @@ class PdfReader:
         return None
 
     def get_cover(self):
-        return None
+        cover = os.path.join(self._filename[:-4] + COVER_SUFFIX)
+        return cover if os.path.exists(cover) else None
 
     def open(self, filename):
         self._filename = filename
@@ -49,26 +54,43 @@ class PdfReader:
             rmtree(self._workpath)
             self._workpath = None
 
+    def get_metadata(self):
+        return {}
+
+    def get_toc(self):
+        return self._toc
+
     def images(self):
-        return glob(os.path.join(self._workpath, '*.jpg'))
+        for name in glob(os.path.join(self._workpath, '*.jpg')):
+            with open(os.path.join(self._workpath, name), 'rb') as f:
+                yield epub.EpubItem(uid=name,
+                                    file_name="../Text/%s" % name,
+                                    media_type="images/jpg",
+                                    content=f.read())
 
     def stylesheets(self):
-        return [os.path.join(self._workpath, 'pdf2.css')]
+        for css in glob(os.path.join(self._workpath, '*.css')):
+            with open(os.path.join(self._workpath, css)) as f:
+                yield epub.EpubItem(uid=css,
+                                    file_name="../Styles/%s" % css,
+                                    media_type="text/css",
+                                    content=f.read())
 
-    def pages(self):
+    def contents(self):
         if self._workpath is None:
             return
-        yield from glob(os.path.join(self._workpath, 'page-*.xhtml'))
+        self._toc = []
+        for name in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
+            with open(os.path.join(self._workpath, name)) as f:
+                page = epub.EpubHtml(title=name,
+                                     file_name="../Text/%s" % name,
+                                     content=f.read())
+                self._toc.append(page)
+                yield page
 
-    def _is_title(self, line):
-        for pat in self._pat_titles:
-            m = pat.match(line)
-            if m:
-                return len(m.group(1)) - 2, m.group(2)
 
-
-# def register_reader():
-#     return PdfReader()
+def register_reader():
+    return PdfReader()
 
 
 if __name__ == '__main__':
