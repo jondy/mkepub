@@ -83,7 +83,7 @@ def process_file(filename, output='output'):
     logging.info('Processing %s...', filename)
     reader = find_reader(filename)
     if reader is None:
-        logging.warnings('Unsupport file type')
+        raise Exception('不支持的文件类型')
 
     reader.open(filename)
 

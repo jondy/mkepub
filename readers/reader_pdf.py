@@ -8,7 +8,7 @@ from glob import glob
 from shutil import rmtree
 from tempfile import mkdtemp
 
-import epub
+from ebooklib import epub
 
 from . import COVER_SUFFIX
 
@@ -43,9 +43,9 @@ class PdfReader:
 
         cmdlist = CMD_PDF2HTML + ['--dest-dir', self._workpath]
         cmdlist.append(filename)
-        p = subprocess(cmdlist,
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmdlist,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
         output, _ = p.communicate()
 
     def close(self):
@@ -61,18 +61,20 @@ class PdfReader:
         return self._toc
 
     def images(self):
-        for name in glob(os.path.join(self._workpath, '*.jpg')):
-            with open(os.path.join(self._workpath, name), 'rb') as f:
+        for filename in glob(os.path.join(self._workpath, '*.jpg')):
+            name = os.path.basename(filename)
+            with open(filename, 'rb') as f:
                 yield epub.EpubItem(uid=name,
                                     file_name="../Text/%s" % name,
                                     media_type="images/jpg",
                                     content=f.read())
 
     def stylesheets(self):
-        for css in glob(os.path.join(self._workpath, '*.css')):
-            with open(os.path.join(self._workpath, css)) as f:
-                yield epub.EpubItem(uid=css,
-                                    file_name="../Styles/%s" % css,
+        for filename in glob(os.path.join(self._workpath, '*.css')):
+            name = os.path.basename(filename)
+            with open(filename, "rb") as f:
+                yield epub.EpubItem(uid=name,
+                                    file_name="../Styles/%s" % name,
                                     media_type="text/css",
                                     content=f.read())
 
@@ -80,8 +82,9 @@ class PdfReader:
         if self._workpath is None:
             return
         self._toc = []
-        for name in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
-            with open(os.path.join(self._workpath, name)) as f:
+        for filename in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
+            name = os.path.basename(filename)
+            with open(filename, 'rb') as f:
                 page = epub.EpubHtml(title=name,
                                      file_name="../Text/%s" % name,
                                      content=f.read())

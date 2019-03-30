@@ -163,9 +163,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def selectFiles(self):
         options = QFileDialog.Options()
         files, _ = QFileDialog.getOpenFileNames(
-            self, '选择文件',
-            self._lastPath, '文本文件 (*.txt);;PDF 文件 (*.pdf);;所有文件 (*.*)',
-            options=options)
+            self, '选择文件', self._lastPath,
+            '文本文件 (*.txt);;PDF 文件 (*.pdf);;所有文件 (*.*)',
+            '所有文件 (*.*)', options=options)
 
         if files:
             self._setLastPath(os.path.dirname(files[0]))
@@ -238,10 +238,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.about(self, '关于', '延安红云平台编辑辅助工具 (v%s)' % ver)
 
     def startTransform(self):
+        if not self._filelist:
+            self.selectFiles()
         if self._filelist:
             self._transformFiles()
-        else:
-            QMessageBox.information(self, self.windowTitle(), '请首先选择目录或者文件')
 
     def stopTransform(self):
         if self._worker:
