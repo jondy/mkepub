@@ -192,7 +192,7 @@ class TextReader:
                             media_type = 'images/' + url.rsplit('.')[-1]
                             with open(fname, 'rb') as f:
                                 img = epub.EpubItem(
-                                    file_name='Images/' + url,
+                                    file_name='../Images/' + url,
                                     media_type=media_type,
                                     content=f.read())
                             self._images.append(img)

@@ -65,7 +65,7 @@ class PdfReader:
             name = os.path.basename(filename)
             with open(filename, 'rb') as f:
                 yield epub.EpubItem(uid=name,
-                                    file_name="../Text/%s" % name,
+                                    file_name="Text/%s" % name,
                                     media_type="images/jpg",
                                     content=f.read())
 
@@ -86,7 +86,7 @@ class PdfReader:
             name = os.path.basename(filename)
             with open(filename, 'rb') as f:
                 page = epub.EpubHtml(title=name,
-                                     file_name="../Text/%s" % name,
+                                     file_name="Text/%s" % name,
                                      content=f.read())
                 self._toc.append(page)
                 yield page
