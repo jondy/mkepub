@@ -85,10 +85,10 @@ class PdfReader:
         self._toc = []
         for filename in glob(os.path.join(self._workpath, '*.html')):
             name = os.path.basename(filename)
+            url = "Text/%s" % name
             with open(filename, 'rb') as f:
-                page = epub.EpubItem(file_name="Text/%s" % name,
-                                     content=f.read())
-                self._toc.append(page)
+                page = epub.EpubItem(file_name=url, content=f.read())
+                # self._toc.append(page)
                 yield page
 
         for filename in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
