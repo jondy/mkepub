@@ -90,7 +90,8 @@ def process_file(filename, output='output'):
     book = epub.EpubBook()
     book.FOLDER_NAME = 'OEBPS'
 
-    style = 'body { qrfullpage:1; text-align:center; }'
+    style = '''body { qrfullpage:1; text-align:center; }
+               img { max-width: 80% }'''
     cover_css = epub.EpubItem(uid="style_cover",
                               file_name="cover.css",
                               media_type="text/css",

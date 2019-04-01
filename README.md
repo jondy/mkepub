@@ -92,11 +92,17 @@
 
 3. 清除不必要项
 
-     gs  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4
-         -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true
+     gs  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 \
+         -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true \
          -o p3-optim.pdf p3.pdf
 
 ### 分割 PDF
 
 点击工具栏按钮 `分割 PDF` ,选择一个PDF文件，会分割成为 20M 大小的多个
 PDF 文件，存放在和原文件相同的目录下面。
+
+## 附加说明
+
+* 解决 Qt Plugin 找不到问题
+
+export QT_PLUGIN_PATH=C:/Python34/Lib/site-packages/PyQt5/plugins/

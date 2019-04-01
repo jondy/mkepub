@@ -16,6 +16,7 @@ CMD_PDF2HTML = ['tools/pdf2html/pdf2htmlEx.exe',
                 '--split-pages', '1', '--printing', '0',
                 '--embed', 'cfijo', '--process-outline', '0',
                 '--bg-format', 'jpg',
+                '--external-hint-tool', 'tools/pdf2html/ttfautohint',
                 '--page-filename', 'chapter%02d.xhtml']
 
 logger = logging.getLogger('mkepub.pdfreader')
