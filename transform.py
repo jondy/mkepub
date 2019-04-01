@@ -131,9 +131,10 @@ def process_file(filename, output='output'):
         css_items.append(item)
 
     for item in reader.contents():
-        item.add_item(default_css)
-        for css in css_items:
-            item.add_item(css)
+        if isinstance(item, epub.EpubHtml):
+            item.add_item(default_css)
+            for css in css_items:
+                item.add_item(css)
         book.add_item(item)
 
     for item in reader.images():

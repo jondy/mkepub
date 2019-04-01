@@ -14,7 +14,7 @@ from . import COVER_SUFFIX
 
 CMD_PDF2HTML = ['tools/pdf2html/pdf2htmlEx.exe',
                 '--split-pages', '1', '--printing', '0',
-                '--embed', 'cfijo', '--process-outline', '0',
+                '--process-outline', '0',
                 '--bg-format', 'jpg',
                 '--external-hint-tool', 'tools/pdf2html/ttfautohint',
                 '--page-filename', 'chapter%02d.xhtml']
@@ -75,7 +75,7 @@ class PdfReader:
             name = os.path.basename(filename)
             with open(filename, "rb") as f:
                 yield epub.EpubItem(uid=name,
-                                    file_name="../Styles/%s" % name,
+                                    file_name="Styles/%s" % name,
                                     media_type="text/css",
                                     content=f.read())
 
@@ -83,13 +83,20 @@ class PdfReader:
         if self._workpath is None:
             return
         self._toc = []
+        for filename in glob(os.path.join(self._workpath, '*.html')):
+            name = os.path.basename(filename)
+            with open(filename, 'rb') as f:
+                page = epub.EpubItem(file_name="Text/%s" % name,
+                                     content=f.read())
+                self._toc.append(page)
+                yield page
+
         for filename in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
             name = os.path.basename(filename)
             with open(filename, 'rb') as f:
                 page = epub.EpubHtml(title=name,
                                      file_name="Text/%s" % name,
                                      content=f.read())
-                self._toc.append(page)
                 yield page
 
 
