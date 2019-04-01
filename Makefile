@@ -5,7 +5,7 @@ PANDOC = tools/pandoc/pandoc
 INNOSETUP = C:/Program Files (x86)/Inno Setup 5/Compil32.exe
 
 HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import pypdf2
-DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk' --add-data 'config.json;.' --add-data 'templates;templates'
+DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk' --add-data 'tools/pdf2html;tools/pdf2html' --add-data 'config.json;.' --add-data 'templates;templates'
 
 .PHONY: test build publish
 

@@ -9,6 +9,15 @@ from PyPDF2 import PdfFileReader
 CMD_PDFTK = os.path.normpath('tools/pdftk/pdftk.exe')
 
 
+def get_pdf_info(filename):
+    with open(filename, 'rb') as f:
+        r = PdfFileReader(f, strict=False)
+        pages = r.getNumPages()
+
+    statinfo = os.stat(filename)
+    return pages, statinfo.st_size
+
+
 def get_split_pages(filename, size=10):
     with open(filename, 'rb') as f:
         r = PdfFileReader(f, strict=False)
