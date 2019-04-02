@@ -94,8 +94,7 @@ class PdfReader:
         for filename in glob(os.path.join(self._workpath, 'chapter*.xhtml')):
             name = os.path.basename(filename)
             with open(filename, 'rb') as f:
-                page = epub.EpubHtml(title=name,
-                                     file_name="Text/%s" % name,
+                page = epub.EpubItem(file_name="Text/%s" % name,
                                      content=f.read())
                 yield page
 
