@@ -82,7 +82,7 @@ class PdfReader:
             return
         self._toc = []
         for filename in glob(os.path.join(self._workpath, '*.html')):
-            name = os.path.basename(filename)
+            name = "pdf_frame.html"
             url = "Text/%s" % name
             with open(filename, 'rb') as f:
                 page = epub.EpubItem(file_name=url, content=f.read())
