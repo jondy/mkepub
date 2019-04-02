@@ -44,10 +44,8 @@ class PdfReader:
 
         cmdlist = CMD_PDF2HTML + ['--dest-dir', self._workpath]
         cmdlist.append(filename)
-        p = subprocess.Popen(cmdlist,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-        output, _ = p.communicate()
+        p = subprocess.Popen(cmdlist)
+        p.communicate()
 
     def close(self):
         self._filename = None
