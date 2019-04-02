@@ -79,6 +79,8 @@
 
 ## PDF 预处理
 
+### 减小文件大小
+
 为了减少 PDF 文件的大小，使用下面的方式进行预处理
 
 1.降低图片质量，从低到高 /screen, /default, /ebook, /printer, /prepress
@@ -96,7 +98,18 @@
          -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true \
          -o p3-optim.pdf p3.pdf
 
-### 分割 PDF
+### 去除封面和封底
+
+1. 执行下面的命令，删除第一页和最后一页，保存到 `book-new.pdf`
+
+    tools/pdftk/pdftk book.pdf cat 2-r2 output book-new.pdf
+    
+2. 执行下面的命令，删除封面、目录，假设目录在第二页，保存到 `book-new.pdf`
+
+    tools/pdftk/pdftk book.pdf cat 3-end output book-new.pdf
+
+    
+## 分割 PDF
 
 点击工具栏按钮 `分割 PDF` ,选择一个PDF文件，会分割成为 20M 大小的多个
 PDF 文件，存放在和原文件相同的目录下面。
