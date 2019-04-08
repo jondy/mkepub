@@ -44,8 +44,12 @@ class PdfReader:
 
         cmdlist = CMD_PDF2HTML + ['--dest-dir', self._workpath]
         cmdlist.append(filename)
+
         p = subprocess.Popen(cmdlist)
         p.communicate()
+
+        if p.returncode != 0:
+            raise RuntimeError('转换失败，pdf2htmlEx 出错')
 
     def close(self):
         self._filename = None
