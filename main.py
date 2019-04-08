@@ -199,7 +199,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for i in range(w.rowCount()):
             w.removeRow(0)
         path = os.path.dirname(filename)
-        output = self.path.join(path, 'output')
+        output = os.path.join(path, 'output')
         if not os.path.exists(output):
             os.makedirs(output)
         name = os.path.splitext(os.path.basename(filename))[0]

@@ -2,6 +2,6 @@
     "version": "0.2a1",
     
     "pdf": {
-        "split_size": 20.0
+        "split_size": 18.0
     }
 }

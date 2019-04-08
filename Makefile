@@ -25,7 +25,7 @@ docs: README.md
 	$(PANDOC) -s --metadata pagetitle="延安红云平台编辑工具" README.md > README.html
 
 publish:
-	$(PYINSTALLER) -y -w --name mkepub ${HIDDEN_IMPORTS} ${DATA_FILES} ${EXTRA_PATHS} main.py transform.py
+	$(PYINSTALLER) -y --name mkepub ${HIDDEN_IMPORTS} ${DATA_FILES} ${EXTRA_PATHS} main.py transform.py
 	"$(INNOSETUP)" /cc setup.iss
 	scp -i ~/.ssh/id_rsa dist/yanhong-editor.exe root@yancloud.red:/www/wwwroot/www.yancloud.red/downloads
 
