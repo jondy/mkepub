@@ -338,5 +338,17 @@ def main():
     sys.exit(ret)
 
 
+def pdf_to_epub(filename):
+    try:
+        output = os.getenv('MKEPUB_OUTPUT', 'output')
+        process_file(filename, output)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        pdf_to_epub(sys.argv[1])
+    else:
+        main()
