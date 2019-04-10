@@ -22,7 +22,7 @@ Source: "D:\projects\mkepub\dist\images\logo-64.ico"; DestDir: "{app}"; DestName
 Source: "D:\projects\mkepub\rulers.txt"; DestDir: "{app}"; Flags: recursesubdirs; Permissions: authusers-modify;
 
 [Icons]
-Name: "{group}\延安红云编辑助手"; Filename: "{app}\mkepub.exe"; IconFilename: "{app}\logo.ico";
+Name: "{group}\延安红云编辑助手"; Filename: "{app}\mkepub.exe"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}";
 Name: "{group}\批量转换路径"; Filename: "{app}\tools\batch";
 Name: "{group}\卸载延安红云编辑助手"; Filename: "{uninstallexe}";
 Name: "{group}\使用帮助"; Filename: "{app}\README.html"; WorkingDir: "{app}";
