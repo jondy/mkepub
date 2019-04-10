@@ -334,7 +334,7 @@ def main():
         ret = app.exec_()
     except Exception:
         logging.exception('Unhandle exception')
-        ret = -1
+        ret = 1
     sys.exit(ret)
 
 

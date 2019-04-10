@@ -26,16 +26,16 @@ REM
 SetLocal
 
 REM TODO: 设置输出路径，默认是当前脚本所在的路径
-Set OUTPUT=%~dp1
+Set OUTPUT=%~dp0
 
 REM TODO: 设置编辑工具所在路径，默认是当前脚本所在的路径的上两级路径
-Set MKEPUBPATH=%~dp1\..\..
+Set MKEPUBPATH=%~dp0\..\..
 
 REM TODO: 设置 ghostscript 脚本
 Set GS=C:\Program Files\gs\gs9.27\bin\gswin64c.exe
-Set GS=C:\Program Files\gs\gs9.26\bin\gswin64c.exe
+Set GS=C:\Program Files\gs\gs9.26\bin\gswin32c.exe
 
-Set ROOTPATH=%~dp1
+Set ROOTPATH=%~dp0
 Set INPUTFILE=%ROOTPATH%\filelist.txt
 
 Set PDF2HMLT=%MKEPUBPATH%\tools\pdf2html\pdf2htmlEx.exe
@@ -52,74 +52,75 @@ Set FAILEDFILE=%OUTPUT%\result.failed.txt
 
 If NOT EXIST "%GS%" (
     Echo.
-    Echo  找不到 %GS% ，请下载安装 http://yancloud.red/downloads/gs927w64.exe
+    Echo 找不到 %GS% ，请下载安装 http://yancloud.red/downloads/gs927w64.exe
     Echo.
     Goto END
 )
 
 If NOT EXIST "%INPUTFILE%" (
     Echo.
-    Echo  输入文件 %INPUTFILE% 不存在
+    Echo 输入文件 %INPUTFILE% 不存在
     Echo.
     Goto END
 )
 
 If NOT EXIST "%MKEPUBPATH%\%MKEPUB%" (
     Echo.
-    Echo  找不到编辑工具，请下载安装 http://yancloud.red/downloads/yanhong-editor.exe
+    Echo 找不到编辑工具，请下载安装 http://yancloud.red/downloads/yanhong-editor.exe
     Echo.
     Goto END
 )
 
-FOR /F "" %i IN (%INPUTFILE%) DO (
-    @Echo 开始处理 %i ...
-    @Echo %filename% >> %RESULTFILE%
+If NOT EXIST %PDFPATH% MD %PDFPATH%
+If NOT EXIST %HMTLPATH% MD %HMTLPATH%
+If NOT EXIST %LOGPATH% MD %LOGPATH%
+
+FOR /F "" %%i IN (%INPUTFILE%) DO (
+    @Echo 开始处理 %%i ...
+    @Echo %%i >> %RESULTFILE%
     
-    Set filename=%~ni
-    Set logfile=%LOGPATH%\%filename%.log
-    
-    @Echo 文件名称 %filename%
-    @Echo 输出日志到  %logfile%
+    @Echo 文件名称 %%~nxi
+    @Echo 输出日志到  %LOGPATH%\%%~ni.log
     
     @Echo 开始对 pdf 文件进行预处理 ...
-    %GS%  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true -o %PDFPATH%/%filename% %filename% >> %logfile% 2>&1
-    If NOT ERRORLEVEL 0 (
+    CALL "%GS%"  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true -o %PDFPATH%/%%~nxi %%i >> %LOGPATH%\%%~ni.log
+    If ERRORLEVEL 1 (
         Echo.
         Echo 预处理失败，该 PDF 格式存在问题
         Echo.
-        @Echo %filename% 预处理失败 >> %FAILEDFILE%
+        @Echo %%i >> %FAILEDFILE%
         Goto END
     )
-    @Echo 预处理成功，处理后的文件保存为 %PDFPATH%/%filename%
-    
+    @Echo 预处理成功，处理后的文件保存为 %PDFPATH%/%%~nxi
+
     @Echo 正在生成前 5 页的 HTML 文件
-    %PDF2HMLT% --last-page 5 %PDFPATH%/%filename% %filename%.html >> %logfile% 2>&1
+    "%PDF2HMLT%" --last-page 5 %PDFPATH%/%%~nxi %%~ni.html >> %LOGPATH%\%%~ni.log
     
-    If NOT ERRORLEVEL 0 (
+    If ERRORLEVEL 1 (
         Echo.
         Echo 生成 HTML 文件失败
         Echo.
-        @Echo %filename% 生成 HTML 文件失败 >> %FAILEDFILE%
+        @Echo %%i >> %FAILEDFILE%
         Goto END
     )    
-    MOVE /Y %filename%.html %HMTLPATH%
-    @Echo 生成的 HTML 文件保存在 %HMTLPATH%/%filename%.html
+    MOVE /Y %%~ni.html %HMTLPATH%
+    @Echo 生成的 HTML 文件保存在 %HMTLPATH%/%%~ni.html
     
     SetLocal
         @Echo 切换到路径 %MKEPUBPATH%
         CD /D %MKEPUBPATH%
         
         @Echo 开始生成 EPUB ...
-        %MKEPUB% %PDFPATH%/%filename% >> %logfile% 2>&1
-        If NOT ERRORLEVEL 0 (
+        %MKEPUB% %PDFPATH%/%%~nxi >> %LOGPATH%\%%~ni.log
+        If ERRORLEVEL 1 (
             Echo.
             Echo 生成 EPUB 文件失败
             Echo.
-            @Echo %filename% 生成 EPUB 文件失败 >> %FAILEDFILE%
+            @Echo %%i >> %FAILEDFILE%
             Goto END
         )    
         
-        @Echo %filename% >> %PASSFILE%
+        @Echo %%~nxi >> %PASSFILE%
         @Echo EPUB 文件成功生成，保存在 %MKEPUBPATH%/output
     
     EndLocal
