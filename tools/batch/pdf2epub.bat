@@ -33,7 +33,6 @@ Set MKEPUBPATH=%~sdp0\..\..
 
 REM TODO: 设置 ghostscript 脚本
 Set GS=C:\Program Files\gs\gs9.27\bin\gswin64c.exe
-Rem Set GS=C:\Program Files\gs\gs9.26\bin\gswin32c.exe
 
 Set ROOTPATH=%~sdp0
 Set INPUTFILE=%ROOTPATH%\filelist.txt
@@ -45,11 +44,13 @@ Set PDFPATH=%OUTPUT%\input
 Set HMTLPATH=%OUTPUT%\html
 Set LOGPATH=%OUTPUT%\log
 Set EPUBPATH=%OUTPUT%\epub
+Set MKEPUB_OUTPUT=%OUTPUT%\epub
 
 Set RESULTFILE=%OUTPUT%\result.txt
 Set PASSFILE=%OUTPUT%\result.pass.txt
 Set FAILEDFILE=%OUTPUT%\result.failed.txt
 
+If NOT EXIST "%GS%" Set GS=C:\Program Files\gs\gs9.26\bin\gswin32c.exe
 If NOT EXIST "%GS%" (
     Echo.
     Echo 找不到 %GS% ，请下载安装 http://yancloud.red/downloads/gs927w64.exe
@@ -74,9 +75,11 @@ If NOT EXIST %MKEPUBPATH%\%MKEPUB% (
 If NOT EXIST %PDFPATH% MD %PDFPATH%
 If NOT EXIST %HMTLPATH% MD %HMTLPATH%
 If NOT EXIST %LOGPATH% MD %LOGPATH%
+If NOT EXIST %MKEPUB_OUTPUT% MD %MKEPUB_OUTPUT%
 
-FOR /F "" %%i IN (%INPUTFILE%) DO (
-
+FOR /F "" %%i IN (%INPUTFILE%) DO ( 
+   
+    @Echo =========================================================
     @Echo 开始处理 %%i ...
     @Echo %%i >> %RESULTFILE%
 
@@ -84,6 +87,7 @@ FOR /F "" %%i IN (%INPUTFILE%) DO (
     @Echo 输出日志到  "%LOGPATH%\%%~ni.log"
 
     @Echo 开始对 pdf 文件进行预处理 ...
+    @Echo 这需要一点时间，请耐心等候
     CALL "%GS%"  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true -o "%PDFPATH%/%%~nxi" "%%i" >> "%LOGPATH%\%%~ni.log"
     If ERRORLEVEL 0 (
         @Echo 预处理成功，处理后的文件保存为 %PDFPATH%/%%~nxi
@@ -100,10 +104,11 @@ FOR /F "" %%i IN (%INPUTFILE%) DO (
             CD /D "%MKEPUBPATH%"
             
             @Echo 开始生成 EPUB ...
-            CALL %MKEPUB% "%PDFPATH%/%%~nxi" >> "%LOGPATH%\%%~ni.log"
-            If ERRORLEVEL 0 (
+            %MKEPUB% "%PDFPATH%/%%~nxi" >> "%LOGPATH%\%%~ni.log"
+            If EXIST "%MKEPUB_OUTPUT%\%%~ni.epub" (
                 @Echo %%~nxi >> "%PASSFILE%"
-                @Echo EPUB 文件成功生成，保存在 %MKEPUBPATH%/output
+                @Echo EPUB 文件成功生成，保存在 "%MKEPUB_OUTPUT%\%%~ni.epub"
+                Echo.
             ) Else (
                 Echo.
                 Echo 生成 EPUB 文件失败
@@ -122,7 +127,8 @@ FOR /F "" %%i IN (%INPUTFILE%) DO (
         Echo 预处理失败，该 PDF 格式存在问题
         Echo.
         @Echo %%i >> "%FAILEDFILE%"
-    )    
+    )   
+    
 )
 
 :END
