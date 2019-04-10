@@ -88,23 +88,23 @@ FOR /F "" %%i IN (%INPUTFILE%) DO (
 
     @Echo 开始对 pdf 文件进行预处理 ...
     @Echo 这需要一点时间，请耐心等候
-    CALL "%GS%"  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true -o "%PDFPATH%/%%~nxi" "%%i" >> "%LOGPATH%\%%~ni.log"
+    CALL "%GS%"  -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dDetectDuplicateImages=true -o "%PDFPATH%\%%~nxi" "%%i" >> "%LOGPATH%\%%~ni.log"
     If ERRORLEVEL 0 (
-        @Echo 预处理成功，处理后的文件保存为 %PDFPATH%/%%~nxi
+        @Echo 预处理成功，处理后的文件保存为 %PDFPATH%\%%~nxi
         
         @Echo 正在生成前 5 页的 HTML 文件
-        "%PDF2HMLT%" --last-page 5 "%PDFPATH%/%%~nxi" "%%~ni.html" >> "%LOGPATH%\%%~ni.log"
+        "%PDF2HMLT%" --last-page 5 "%PDFPATH%\%%~nxi" "%%~ni.html" >> "%LOGPATH%\%%~ni.log"
         
         If ERRORLEVEL 0 (
             MOVE /Y "%%~ni.html" "%HMTLPATH%"
-            @Echo 生成的 HTML 文件保存在 %HMTLPATH%/%%~ni.html
+            @Echo 生成的 HTML 文件保存在 %HMTLPATH%\%%~ni.html
             
             SetLocal
             @Echo 切换到路径 %MKEPUBPATH%
             CD /D "%MKEPUBPATH%"
             
             @Echo 开始生成 EPUB ...
-            %MKEPUB% "%PDFPATH%/%%~nxi" >> "%LOGPATH%\%%~ni.log"
+            %MKEPUB% "%PDFPATH%\%%~nxi" >> "%LOGPATH%\%%~ni.log"
             If EXIST "%MKEPUB_OUTPUT%\%%~ni.epub" (
                 @Echo %%~nxi >> "%PASSFILE%"
                 @Echo EPUB 文件成功生成，保存在 "%MKEPUB_OUTPUT%\%%~ni.epub"
