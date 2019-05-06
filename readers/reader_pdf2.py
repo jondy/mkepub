@@ -71,7 +71,6 @@ class PdfReader:
         n = get_num_pages(filename)
 
         batch = 100
-        n, batch = 6, 2
         logger.info('Total pages: %s', n)
         for i in range(1, n, batch):
             p = mkdtemp(prefix='mkepub_', suffix='_pdf')
