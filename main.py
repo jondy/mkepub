@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, \
 from transform import process_file, upload_file, save_result
 from ui_main import Ui_MainWindow
 from correct import CorrectDialog
-from splitter import split_pdf_file, get_pdf_info, get_split_pages
+from splitter import split_pdf_file, get_split_pages
 
 COL_STATUS = 1
 COL_UPLOAD = 2
