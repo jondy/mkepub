@@ -29,7 +29,7 @@ class PdfReader:
         self._workpath = None
 
     def is_support(self, ext):
-        return ext in ('.pdf',)
+        return ext in ('.spdf',)
 
     def get_template(self):
         return None
@@ -40,7 +40,7 @@ class PdfReader:
 
     def open(self, filename):
         self._filename = filename
-        self._workpath = mkdtemp(suffix='__pdf')
+        self._workpath = mkdtemp(prefix='mkepub_', suffix='_pdf')
 
         cmdlist = CMD_PDF2HTML + ['--dest-dir', self._workpath]
         cmdlist.append(filename)
