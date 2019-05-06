@@ -109,7 +109,7 @@ def process_file(filename, output='output'):
     meta = reader.get_metadata()
     book.set_identifier(meta.get('ISBN', str(uuid.uuid4())))
 
-    name = os.path.basename(filename).split('.')[0]
+    name = os.path.splitext(os.path.basename(filename))[0]
     book.set_title(meta.get('title', name))
     book.set_language('zh')
 
