@@ -77,7 +77,7 @@ If NOT EXIST %HMTLPATH% MD %HMTLPATH%
 If NOT EXIST %LOGPATH% MD %LOGPATH%
 If NOT EXIST %MKEPUB_OUTPUT% MD %MKEPUB_OUTPUT%
 
-FOR /F "" %%i IN (%INPUTFILE%) DO ( 
+FOR /F "delims=;" %%i IN (%INPUTFILE%) DO ( 
    
     @Echo =========================================================
     @Echo 开始处理 %%i ...
