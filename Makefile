@@ -9,7 +9,7 @@ ifneq ($(PYINSTALLER),$(wildcard $(PYINSTALLER)))
 endif
 
 
-HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import pypdf2
+HIDDEN_IMPORTS = --hidden-import chardet --hidden-import comtypes --hidden-import openpyxl --hidden-import transform
 DATA_FILES = --add-data 'README.html;.' --add-data 'readers;readers' --add-data 'upload.xltx;.' --add-data 'tools/pdftk;tools/pdftk' --add-data 'tools/pdf2html;tools/pdf2html' --add-data 'config.json;.' --add-data 'templates;templates' --add-data 'tools/batch;tools/batch'
 
 .PHONY: test build publish
@@ -25,7 +25,8 @@ docs: README.md
 	$(PANDOC) -s --metadata pagetitle="延安红云平台编辑工具" README.md > README.html
 
 publish:
-	$(PYINSTALLER) -y --name mkepub ${HIDDEN_IMPORTS} ${DATA_FILES} ${EXTRA_PATHS} main.py transform.py
+	$(PYINSTALLER) -y --name mkepub ${HIDDEN_IMPORTS} ${DATA_FILES} ${EXTRA_PATHS} main.py
+	cp -a ../easy-han/dist/easy-han/qt5_plugins dist/mkepub
 	"$(INNOSETUP)" /cc setup.iss
 	scp -i ~/.ssh/id_rsa dist/yanhong-editor.exe root@yancloud.red:/www/wwwroot/www.yancloud.red/downloads
 
