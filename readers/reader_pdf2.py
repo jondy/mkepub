@@ -21,6 +21,19 @@ CMD_PDF2HTML = ['tools/pdf2html/pdf2htmlEx.exe',
                 '--css-filename', 'epub.css', '--bg-format', 'jpg',
                 '--page-filename', 'chapter%02d.xhtml']
 
+PREV_TEMPLATE = '''<div style="text-align: center; margin-bottom: -1rem;">
+<a href="%s">
+<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="28">
+<path fill="#f0f0f0" d="M177 255.7l136 136c9.4 9.4 9.4 24.6 0 33.9l-22.6 22.6c-9.4 9.4-24.6 9.4-33.9 0L160 351.9l-96.4 96.4c-9.4 9.4-24.6 9.4-33.9 0L7 425.7c-9.4-9.4-9.4-24.6 0-33.9l136-136c9.4-9.5 24.6-9.5 34-.1zm-34-192L7 199.7c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l96.4-96.4 96.4 96.4c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9l-136-136c-9.2-9.4-24.4-9.4-33.8 0z"></path></svg>
+</a>
+</div>'''
+NEXT_TEMPLATE = '''<div style="text-align: center;">
+<a href="%s">
+<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="28">
+<path fill="#f0f0f0" d="M143 256.3L7 120.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0L313 86.3c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.4 9.5-24.6 9.5-34 .1zm34 192l136-136c9.4-9.4 9.4-24.6 0-33.9l-22.6-22.6c-9.4-9.4-24.6-9.4-33.9 0L160 352.1l-96.4-96.4c-9.4-9.4-24.6-9.4-33.9 0L7 278.3c-9.4 9.4-9.4 24.6 0 33.9l136 136c9.4 9.5 24.6 9.5 34 .1z"></path></svg>
+</a>
+</div>'''
+
 logger = logging.getLogger('mkepub.pdfreader2')
 
 
@@ -105,7 +118,6 @@ class PdfReader:
     def stylesheets(self):
         n = 0
         for p in self._workpath:
-            n += 1
             for filename in glob(os.path.join(p, '*.css')):
                 name = str(n) + '/' + os.path.basename(filename)
                 with open(filename, "rb") as f:
@@ -113,6 +125,7 @@ class PdfReader:
                                         file_name="Styles/%s" % name,
                                         media_type="text/css",
                                         content=f.read())
+            n += 1
 
     def contents(self):
         if not self._workpath:
@@ -129,15 +142,15 @@ class PdfReader:
                 with open(filename, 'r') as f:
                     content = f.read()
                 m = 'link rel="stylesheet" href="'
-                s = '../Styles/%d' % (i + 1)
+                s = '../Styles/%d/' % i
                 content = content.replace(m, m+s)
                 if i:
                     m = '<div id="page-container">'
-                    s = '<a href="%s">prev</a>' % _page_name(i-1)
-                    content = content.replace(m, s+m)
+                    s = PREV_TEMPLATE % _page_name(i-1)
+                    content = content.replace(m, m+s)
                 if i < n - 1:
-                    m = '<div id="loading-indicator">'
-                    s = '<a href="%s">next</a>' % _page_name(i+1)
+                    m = '</div>\n<div class="loading-indicator">'
+                    s = NEXT_TEMPLATE % _page_name(i+1)
                     content = content.replace(m, s+m)
                 url = "Text/%s" % _page_name(i)
                 page = epub.EpubItem(file_name=url, content=content)
@@ -153,8 +166,8 @@ class PdfReader:
 
         n = 0
         for p in self._workpath:
-            n += 1
             prefix = 'Styles/' + str(n)
+            n += 1
             for filename in glob(os.path.join(p, '*.woff')):
                 name = os.path.basename(filename)
                 with open(filename, 'rb') as f:
