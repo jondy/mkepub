@@ -15,7 +15,7 @@ from . import COVER_SUFFIX
 
 CMD_PDF2HTML = ['tools/pdf2html/pdf2htmlEx.exe',
                 '--split-pages', '1', '--printing', '0',
-                '--tounicode', '-1', '--process-outline', '0',
+                '--tounicode', '0', '--process-outline', '0',
                 '--embed-css', '0', '--embed-font', '0',
                 '--embed-javascript', '1', '--embed-image', '0',
                 '--css-filename', 'epub.css', '--bg-format', 'jpg',

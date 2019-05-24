@@ -93,7 +93,7 @@ FOR /F "delims=;" %%i IN (%INPUTFILE%) DO (
         @Echo 预处理成功，处理后的文件保存为 %PDFPATH%\%%~nxi
         
         @Echo 正在生成前 5 页的 HTML 文件
-        "%PDF2HMLT%" --last-page 5 --tounicode -1 "%PDFPATH%\%%~nxi" "%%~ni.html" >> "%LOGPATH%\%%~ni.log"
+        "%PDF2HMLT%" --last-page 5 --tounicode 0 "%PDFPATH%\%%~nxi" "%%~ni.html" >> "%LOGPATH%\%%~ni.log"
         
         If ERRORLEVEL 0 (
             MOVE /Y "%%~ni.html" "%HMTLPATH%"
